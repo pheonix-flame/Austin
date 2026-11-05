@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quant Gym — Austin Okezie</title>
+  <meta name="description" content="Three quick quantitative games: Kelly bet sizing, Bayesian probability estimation and a mental-math sprint.">
+  <meta name="theme-color" content="#0d0d0c">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Austin Okezie">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/game.css">
+  <link rel="stylesheet" href="../css/quantgym.css">
+</head>
+<body data-game="quantgym">
+  <div class="topbar">
+    <a class="back" href="../index.html#play">← Portfolio</a>
+    <span class="title-chip">Quant Gym</span>
+    <span class="title-chip" id="totalChip"></span>
+  </div>
+
+  <main class="gym">
+    <header class="gym-head">
+      <p class="kicker">Have fun &amp; explore · 03</p>
+      <h1>Quant <em>Gym</em></h1>
+      <p class="lede">The maths behind trading desks, in three short drills. Size your bets, update your beliefs, and keep your arithmetic sharp.</p>
+      <nav class="modes" role="tablist">
+        <button role="tab" data-mode="kelly"><span>01</span><b>Kelly criterion</b><i>How much should you bet when you have an edge?</i></button>
+        <button role="tab" data-mode="bayes"><span>02</span><b>Bayes detective</b><i>Estimate probabilities from evidence. Get scored on calibration.</i></button>
+        <button role="tab" data-mode="sprint"><span>03</span><b>Mental math sprint</b><i>60 seconds of interview-style questions.</i></button>
+      </nav>
+    </header>
+
+    <!-- KELLY -->
+    <section class="mode" data-pane="kelly" hidden>
+      <div class="split">
+        <div class="card">
+          <div class="card-head"><h2>The biased coin</h2><span class="muted" id="kRound">Flip 0 / 100</span></div>
+          <p class="read" id="kSetup"></p>
+          <div class="kpis">
+            <div><span>Bankroll</span><b id="kBank">$1,000</b></div>
+            <div><span>Bet size</span><b id="kBet">$0</b></div>
+            <div><span>Last flip</span><b id="kLast">—</b></div>
+          </div>
+          <label class="slider">
+            <span>Fraction of bankroll to bet <b id="kFracLbl">10%</b></span>
+            <input type="range" id="kFrac" min="0" max="100" step="1" value="10">
+          </label>
+          <div class="row">
+            <button class="btn btn-solid" id="kFlip">Flip <kbd>Space</kbd></button>
+            <button class="btn" id="kAuto">Auto ×10</button>
+            <button class="btn" id="kNew">New game</button>
+          </div>
+          <div class="coin" id="kCoin" aria-hidden="true"><div class="face h">H</div><div class="face t">T</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Wealth (log scale)</h2><span class="muted">same flips for everyone</span></div>
+          <canvas id="kChart" class="chart"></canvas>
+          <div class="legend" id="kLegend"></div>
+          <div id="kResult" hidden>
+            <h3 class="sub-h">Growth rate vs bet size</h3>
+            <canvas id="kCurve" class="chart small"></canvas>
+            <p class="read" id="kLesson"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BAYES -->
+    <section class="mode" data-pane="bayes" hidden>
+      <div class="split">
+        <div class="card">
+          <div class="card-head"><h2 id="bTitle">Case 1</h2><span class="muted" id="bScore">Score 0</span></div>
+          <div class="scenario" id="bScenario"></div>
+          <label class="slider">
+            <span>Your probability <b id="bEstLbl">50%</b></span>
+            <input type="range" id="bEst" min="0" max="100" step="1" value="50">
+          </label>
+          <div class="row">
+            <button class="btn btn-solid" id="bSubmit">Lock it in <kbd>Enter</kbd></button>
+            <button class="btn" id="bNext" hidden>Next case →</button>
+          </div>
+          <div class="answer" id="bAnswer" hidden></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Calibration</h2><span class="muted" id="bCount">0 / 10 cases</span></div>
+          <canvas id="bChart" class="chart"></canvas>
+          <p class="read">Each dot is one case: your estimate against the true probability. Perfect calibration sits on the diagonal. Points per case = 100 × (1 − (error ÷ 0.3)²), floored at zero.</p>
+          <div id="bFinal" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SPRINT -->
+    <section class="mode" data-pane="sprint" hidden>
+      <div class="card sprint">
+        <div class="card-head"><h2>Mental math sprint</h2><span class="muted">Best <b id="sBest">0</b></span></div>
+        <div class="sprint-top">
+          <div><span>Time</span><b id="sTime">60</b></div>
+          <div><span>Score</span><b id="sScore">0</b></div>
+          <div><span>Streak</span><b id="sStreak">0</b></div>
+        </div>
+        <div class="question" id="sQ">Press start. Answers can be whole numbers or decimals (to 2 dp).</div>
+        <form class="answer-row" id="sForm" autocomplete="off">
+          <input class="input" id="sInput" inputmode="decimal" placeholder="Your answer" disabled>
+          <button class="btn btn-solid" id="sGo" type="submit">Start</button>
+          <button class="btn" id="sSkip" type="button" disabled>Skip</button>
+        </form>
+        <div class="feedback" id="sFeed"></div>
+        <ol class="history" id="sHist"></ol>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="../js/quantgym.js"></script>
+  <script type="module" src="../js/about.js"></script>
+  <script type="module" src="../js/pwa.js"></script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Lab — Austin Okezie</title>
+  <meta name="description" content="Monitor live synthetic indices, forex, gold and crypto, backtest strategies with Monte Carlo significance tests, or take the Skill-or-Luck trading challenge.">
+  <meta name="theme-color" content="#0d0d0c">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Austin Okezie">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/game.css">
+  <link rel="stylesheet" href="../css/market.css">
+</head>
+<body data-game="market">
+  <div class="topbar">
+    <a class="back" href="../index.html#play">← Portfolio</a>
+    <span class="title-chip">Market Lab</span>
+    <span class="src-chip" id="srcChip"><i></i><span>Connecting…</span></span>
+  </div>
+
+  <main class="lab">
+    <header class="lab-head">
+      <div class="inst-picker" id="instPicker" role="radiogroup" aria-label="Instrument"></div>
+      <div class="lab-row">
+        <div class="seg" id="srcSeg" role="radiogroup" aria-label="Data source">
+          <button data-src="live" role="radio">Live data</button>
+          <button data-src="sim" role="radio">Simulated</button>
+        </div>
+        <div class="seg" id="tfSeg" role="radiogroup" aria-label="Timeframe"></div>
+        <nav class="tabs" role="tablist" aria-label="Mode">
+          <button role="tab" data-tab="monitor">Monitor</button>
+          <button role="tab" data-tab="backtest">Backtest</button>
+          <button role="tab" data-tab="risk">Risk &amp; options</button>
+          <button role="tab" data-tab="challenge">Challenge</button>
+        </nav>
+      </div>
+      <p class="notice" id="notice" hidden></p>
+    </header>
+
+    <section class="lab-body">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <span class="inst-name" id="instName">—</span>
+            <span class="inst-full" id="instFull"></span>
+          </div>
+          <div class="quote">
+            <b id="lastPrice">—</b>
+            <span id="lastChange"></span>
+          </div>
+        </div>
+        <div class="ohlc" id="ohlc">&nbsp;</div>
+        <canvas id="chart" aria-label="Price chart"></canvas>
+        <div class="chart-foot">
+          <div class="legend" id="legend"></div>
+          <span class="hint" id="chartHint">Scroll to zoom · drag to pan</span>
+        </div>
+      </div>
+
+      <aside class="side">
+        <!-- MONITOR -->
+        <div class="pane" data-pane="monitor">
+          <div class="box">
+            <div class="box-head"><h3>Paper trade</h3><span class="muted" id="ptNotional">$10,000 notional</span></div>
+            <div class="pt-grid">
+              <div><span>Position</span><b id="ptPos">Flat</b></div>
+              <div><span>Entry</span><b id="ptEntry">—</b></div>
+              <div><span>Open P&amp;L</span><b id="ptOpen">$0.00</b></div>
+              <div><span>Realised</span><b id="ptReal">$0.00</b></div>
+            </div>
+            <div class="pt-buttons">
+              <button class="pos" id="ptBuy" data-pos="1">Buy</button>
+              <button class="pos" id="ptClose" data-pos="0">Close</button>
+              <button class="pos" id="ptSell" data-pos="-1">Sell</button>
+            </div>
+            <ol class="pt-log" id="ptLog"></ol>
+          </div>
+
+          <div class="box">
+            <div class="box-head"><h3>Overlays</h3></div>
+            <div class="toggles" id="overlayToggles">
+              <label><input type="checkbox" data-ov="sma20" checked> SMA 20</label>
+              <label><input type="checkbox" data-ov="ema50" checked> EMA 50</label>
+              <label><input type="checkbox" data-ov="bb"> Bollinger 20, 2</label>
+              <label><input type="checkbox" data-ov="rsi" checked> RSI 14</label>
+            </div>
+          </div>
+
+          <div class="box">
+            <div class="box-head"><h3>Statistics</h3><span class="muted" id="statN"></span></div>
+            <dl class="stats" id="stats"></dl>
+            <p class="read" id="statRead"></p>
+            <canvas id="dist" class="mini" aria-label="Return distribution against a normal curve"></canvas>
+            <p class="cap">Bar returns (standardised) vs a normal curve. Fat tails show up as bars outside the line.</p>
+          </div>
+        </div>
+
+        <!-- BACKTEST -->
+        <div class="pane" data-pane="backtest" hidden>
+          <div class="box">
+            <div class="box-head"><h3>Strategy</h3></div>
+            <select id="stratSel" class="input"></select>
+            <p class="read" id="stratBlurb"></p>
+            <div class="params" id="params"></div>
+            <label class="param"><span>Cost per trade (bps)</span><input class="input" type="number" id="costBps" value="2" min="0" max="100" step="0.5"></label>
+            <div class="row-btns">
+              <button class="btn btn-solid" id="runBt">Run backtest</button>
+              <button class="btn" id="sweepBt">Parameter sweep</button>
+            </div>
+          </div>
+
+          <div class="box" id="btResults" hidden>
+            <div class="box-head"><h3>Results</h3><span class="muted" id="btBars"></span></div>
+            <table class="metrics"><thead><tr><th>Metric</th><th>Strategy</th><th>Buy &amp; hold</th></tr></thead><tbody id="btTable"></tbody></table>
+            <h4>Is it skill? Random-entry test</h4>
+            <canvas id="btHist" class="mini" aria-label="Histogram of random strategy Sharpe ratios"></canvas>
+            <p class="read" id="btVerdict"></p>
+          </div>
+
+          <div class="box" id="sweepBox" hidden>
+            <div class="box-head"><h3>Sharpe by parameters</h3></div>
+            <canvas id="heat" class="heat" aria-label="Heatmap of Sharpe ratio by parameter values"></canvas>
+            <p class="cap">Click a cell to load those parameters. A lone bright cell surrounded by dark ones is usually overfitting; a broad bright region is more robust.</p>
+          </div>
+        </div>
+
+        <!-- RISK & OPTIONS -->
+        <div class="pane" data-pane="risk" hidden>
+          <div class="box">
+            <div class="box-head"><h3>Volatility model</h3><span class="muted" id="rkN"></span></div>
+            <dl class="stats" id="rkVol"></dl>
+            <p class="read" id="rkVolRead"></p>
+          </div>
+          <div class="box">
+            <div class="box-head"><h3>Monte Carlo forecast</h3><span class="muted">GARCH(1,1) · Student-t</span></div>
+            <div class="params">
+              <label class="param"><span>Horizon (bars)</span><input class="input" type="number" id="rkH" value="48" min="5" max="200"></label>
+              <label class="param"><span>Position ($, long)</span><input class="input" type="number" id="rkPos" value="10000" min="100" step="100"></label>
+            </div>
+            <div class="row-btns"><button class="btn btn-solid" id="rkRun">Run 2,000 paths</button><button class="btn" id="rkExplain">What is this?</button></div>
+            <dl class="stats" id="rkVar" style="margin-top:12px"></dl>
+            <canvas id="rkHist" class="mini" aria-label="Distribution of simulated profit and loss"></canvas>
+          </div>
+          <div class="box">
+            <div class="box-head"><h3>Options · Black–Scholes</h3><span class="muted">expiry = horizon</span></div>
+            <div class="params">
+              <label class="param"><span>Strike</span><input class="input" type="number" id="rkK" step="any"></label>
+              <label class="param"><span>Vol (ann., %)</span><input class="input" type="number" id="rkSig" step="0.1"></label>
+            </div>
+            <table class="metrics" style="margin-top:12px"><thead><tr><th>Greek</th><th>Call</th><th>Put</th></tr></thead><tbody id="rkBS"></tbody></table>
+            <p class="read" id="rkBSRead"></p>
+          </div>
+        </div>
+
+        <!-- CHALLENGE -->
+        <div class="pane" data-pane="challenge" hidden>
+          <div class="box" id="chIntro">
+            <div class="box-head"><h3>Skill or luck?</h3></div>
+            <p class="read">You get 60 bars of history, then trade the next stretch of bars one at a time: long, short or flat. At the end, your Sharpe ratio is ranked against 1,000 random traders on the exact same prices.</p>
+            <p class="read" id="chSourceNote"></p>
+            <button class="btn btn-solid" id="chStart">Start challenge</button>
+          </div>
+          <div id="chLive" hidden>
+            <div class="readouts">
+              <div><span>Bar</span><b id="chDay">0</b></div>
+              <div><span>Equity</span><b id="chEq">$10,000</b></div>
+              <div><span>Return</span><b id="chRet">0.00%</b></div>
+              <div><span>Drawdown</span><b id="chDD">0.00%</b></div>
+            </div>
+            <div class="box">
+              <span class="lbl">Position</span>
+              <div class="pt-buttons big">
+                <button class="pos" data-ch="1">Long <kbd>↑</kbd></button>
+                <button class="pos active" data-ch="0">Flat <kbd>Space</kbd></button>
+                <button class="pos" data-ch="-1">Short <kbd>↓</kbd></button>
+              </div>
+            </div>
+            <div class="row-btns">
+              <button class="btn" id="chSpeed">Speed 1×</button>
+              <button class="btn" id="chPause">Pause</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div class="overlay" id="chResults" hidden>
+    <div class="panel panel-wide">
+      <p class="kicker" id="chKicker">Challenge complete</p>
+      <h2 id="chVerdict">Results</h2>
+      <p id="chVerdictText"></p>
+      <div class="table-wrap">
+        <table class="metrics"><thead><tr><th>Metric</th><th>You</th><th>Buy &amp; hold</th><th>SMA-20 momentum</th></tr></thead><tbody id="chTable"></tbody></table>
+      </div>
+      <div class="mc">
+        <h3>You vs 1,000 random traders</h3>
+        <p class="cap">Same prices, same number of position changes, random timing. Sharpe is annualised, so short intraday samples can show large values.</p>
+        <canvas id="chHist" class="mini" aria-label="Histogram of random trader Sharpe ratios"></canvas>
+        <div class="mc-foot">
+          <div><span>Your percentile</span><b id="chPct">—</b></div>
+          <div><span>p-value</span><b id="chP">—</b></div>
+          <div><span>Random median</span><b id="chMed">—</b></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-solid" id="chAgain">New challenge</button>
+        <button class="btn" id="chReveal">Show hidden regimes</button>
+        <button class="btn" id="chClose">Back to the lab</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../js/market/app.js"></script>
+  <script type="module" src="../js/about.js"></script>
+  <script type="module" src="../js/pwa.js"></script>
+</body>
+</html>

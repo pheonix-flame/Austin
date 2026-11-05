@@ -1,0 +1,23 @@
+{
+  "name": "Austin Okezie · Software Engineer",
+  "short_name": "Austin Okezie",
+  "description": "Portfolio of Austin Okezie, software engineer (AppSecOps), with playable games: Faceoff, Xeno Siege, Market Lab, Market Maker, Floor Forward and Quant Gym.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d0d0c",
+  "theme_color": "#0d0d0c",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "Faceoff", "short_name": "Faceoff", "url": "./games/arena.html", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Xeno Siege", "short_name": "Xeno Siege", "url": "./games/alien.html", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Market Lab", "short_name": "Market Lab", "url": "./games/quant.html", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Market Maker", "short_name": "Market Maker", "url": "./games/marketmaker.html", "icons": [{ "src": "assets/icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

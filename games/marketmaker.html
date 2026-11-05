@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Maker — Austin Okezie</title>
+  <meta name="description" content="A market-making game: quote bid and ask against noise and informed traders, manage inventory, and beat an Avellaneda–Stoikov bot.">
+  <meta name="theme-color" content="#0d0d0c">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Austin Okezie">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/game.css">
+  <link rel="stylesheet" href="../css/marketmaker.css">
+</head>
+<body data-game="marketmaker">
+  <div class="topbar">
+    <a class="back" href="../index.html#play">← Portfolio</a>
+    <span class="title-chip" id="levelChip">Market Maker</span>
+    <span class="title-chip" id="clock">60s</span>
+  </div>
+
+  <main class="mm">
+    <section class="chart-card">
+      <div class="chart-head">
+        <div><b id="lvlName">Round 1</b><span id="lvlDesc"></span></div>
+        <div class="headline" id="headline" aria-live="polite"></div>
+      </div>
+      <canvas id="chart" aria-label="Reference price, your quotes and fills"></canvas>
+      <div class="legend">
+        <span><i style="background:var(--text)"></i>Reference price (lags)</span>
+        <span><i style="background:var(--ok)"></i>Your bid</span>
+        <span><i style="background:var(--accent)"></i>Your ask</span>
+        <span><i class="dash"></i>True value (revealed after the round)</span>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="kpis">
+        <div><span>P&amp;L (marked to ref)</span><b id="kPnl">$0</b></div>
+        <div><span>Inventory</span><b id="kInv">0</b><i class="invbar"><i id="invFill"></i></i></div>
+        <div><span>Fills</span><b id="kFills">0</b></div>
+        <div><span>Avg edge / fill</span><b id="kEdge">—</b></div>
+      </div>
+
+      <div class="box quote">
+        <div class="quote-row">
+          <div class="q bid"><span>Bid</span><b id="qBid">—</b></div>
+          <div class="q mid"><span>Ref</span><b id="qRef">—</b></div>
+          <div class="q ask"><span>Ask</span><b id="qAsk">—</b></div>
+        </div>
+        <div class="ctrl">
+          <span>Half-spread <b id="vHalf">3</b> ticks</span>
+          <div class="step"><button data-k="half" data-d="-1" aria-label="Tighten">−</button><button data-k="half" data-d="1" aria-label="Widen">+</button></div>
+          <small><kbd>W</kbd>/<kbd>S</kbd> or <kbd>↑</kbd>/<kbd>↓</kbd></small>
+        </div>
+        <div class="ctrl">
+          <span>Skew <b id="vSkew">0</b> ticks</span>
+          <div class="step"><button data-k="skew" data-d="-1" aria-label="Skew down">←</button><button data-k="skew" data-d="1" aria-label="Skew up">→</button></div>
+          <small><kbd>A</kbd>/<kbd>D</kbd> or <kbd>←</kbd>/<kbd>→</kbd></small>
+        </div>
+        <div class="row">
+          <button class="btn" id="pullBtn">Pull quotes <kbd>Space</kbd></button>
+          <button class="btn" id="hedgeBtn">Hedge 5 <kbd>H</kbd></button>
+        </div>
+      </div>
+
+      <div class="box flow">
+        <div class="flow-head"><span>Order-flow imbalance</span><b id="flowVal">0</b></div>
+        <div class="flowbar"><i id="flowNeg"></i><i id="flowPos"></i></div>
+        <small>Signed market orders across the whole market (EMA). Persistent imbalance can mean someone knows more than you.</small>
+      </div>
+
+      <div class="box bench">
+        <div class="bench-row"><span>You</span><b id="bYou">$0</b></div>
+        <div class="bench-row"><span>Avellaneda–Stoikov bot</span><b id="bAS">$0</b></div>
+        <div class="bench-row"><span>Fixed-spread bot</span><b id="bFix">$0</b></div>
+        <small>All three face the exact same order flow. Live P&amp;L is marked to the reference price.</small>
+      </div>
+
+      <ol class="tape" id="tape"></ol>
+    </aside>
+  </main>
+
+  <!-- intro -->
+  <div class="overlay" id="intro">
+    <div class="panel panel-wide">
+      <p class="kicker">Have fun &amp; explore · Quant</p>
+      <h1>Market <em>Maker</em></h1>
+      <p>You are the liquidity provider. You continuously quote a <b>bid</b> (you buy) and an <b>ask</b> (you sell). <b>Noise traders</b> pay your spread, which is how you make money. <b>Informed traders</b> know the true value and only trade with you when your quote is stale, which is how you lose it. The reference price you see lags the truth.</p>
+      <div class="intro-grid">
+        <div><b>Spread vs volume</b><span>A wider spread earns more per fill but gets fewer fills. A tighter spread gets more fills, and more of them come from informed traders.</span></div>
+        <div><b>Inventory risk</b><span>Every fill moves your position. Skew your quotes to lean against it, or pay to hedge. The limit is ±25.</span></div>
+        <div><b>Adverse selection</b><span>If the price keeps moving against you after you trade, you were picked off. Watch the headlines and the order-flow imbalance.</span></div>
+      </div>
+      <p class="small">Three rounds of 60 seconds: <b>quiet tape</b>, <b>news day</b> and <b>toxic flow</b>. Beat the Avellaneda–Stoikov bot, which quotes optimally for inventory risk but can’t read news or flow.</p>
+      <div class="actions">
+        <button class="btn btn-solid" id="startBtn">Open the book</button>
+        <a class="btn" href="../index.html#play">Back</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- round results -->
+  <div class="overlay" id="results" hidden>
+    <div class="panel panel-wide">
+      <p class="kicker" id="rKicker">Round complete</p>
+      <h2 id="rTitle">Results</h2>
+      <p id="rText"></p>
+      <div class="table-wrap">
+        <table class="metrics">
+          <thead><tr><th>Metric</th><th>You</th><th>A–S bot</th><th>Fixed bot</th></tr></thead>
+          <tbody id="rTable"></tbody>
+        </table>
+      </div>
+      <div class="mk">
+        <h3>Markouts <small>average P&amp;L per fill, h ticks after the trade, vs true value</small></h3>
+        <canvas id="markout" aria-label="Markout curves"></canvas>
+      </div>
+      <details class="formulas">
+        <summary>How the bot quotes, and what a markout is</summary>
+        <p><b>Avellaneda–Stoikov (2008).</b> Reservation price <code>r = s − q·γ·σ²·(T − t)</code>; total spread <code>δ = γσ²(T − t) + (2/γ)·ln(1 + γ/k)</code>, where <i>s</i> is the reference price, <i>q</i> inventory, <i>γ</i> risk aversion, <i>σ</i> volatility and <i>k</i> the order-arrival decay. It leans against inventory and tightens as the session ends.</p>
+        <p><b>Markout at h</b> = side × (true value at t+h − fill price). Positive at h = 0 is spread you captured. A curve that falls as h grows means adverse selection: the flow you traded with was informed.</p>
+        <p><b>P&amp;L split.</b> <i>Edge at fill</i> = Σ side × (true value − price) at the moment of each fill. <i>Inventory</i> = everything else: how your position moved with the market afterwards.</p>
+      </details>
+      <div class="actions">
+        <button class="btn btn-solid" id="nextBtn">Next round</button>
+        <button class="btn" id="retryBtn">Replay this round</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../js/marketmaker.js"></script>
+  <script type="module" src="../js/about.js"></script>
+  <script type="module" src="../js/pwa.js"></script>
+</body>
+</html>

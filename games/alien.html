@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Xeno Siege — Austin Okezie</title>
+  <meta name="description" content="A first-person alien survival shooter: endless waves, five alien types, levels, perks, a shop and cover.">
+  <meta name="theme-color" content="#0d0d0c">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Austin Okezie">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/game.css">
+  <link rel="stylesheet" href="../css/siege.css">
+  <script type="importmap">{ "imports": { "three": "../vendor/three.module.min.js" } }</script>
+</head>
+<body data-game="siege">
+  <canvas id="stage" aria-label="Xeno Siege game view"></canvas>
+
+  <div class="topbar">
+    <a class="back" href="../index.html#play">← Portfolio</a>
+    <span class="title-chip">Xeno Siege</span>
+    <button class="pill" id="pauseBtn">Pause</button>
+  </div>
+
+  <!-- HUD -->
+  <div class="hud" id="hud" hidden>
+    <div class="crosshair" id="crosshair"><i></i><i></i><i></i><i></i></div>
+    <div class="hitmark" id="hitmark"></div>
+    <div class="vignette" id="vignette"></div>
+    <div class="banner" id="banner"></div>
+    <div class="toast" id="toast"></div>
+
+    <div class="hud-tl">
+      <div class="wave">Wave <b id="hWave">1</b></div>
+      <div class="sub" id="hWaveSub">Prepare</div>
+    </div>
+    <div class="hud-tr">
+      <div class="cred"><span>Credits</span><b id="hCred">0</b></div>
+      <div class="sub" id="hKills">0 kills</div>
+    </div>
+
+    <div class="hud-bl">
+      <div class="bar hp"><span>HP</span><div><i id="hHp"></i></div><b id="hHpN">100</b></div>
+      <div class="bar ar"><span>AR</span><div><i id="hAr"></i></div><b id="hArN">0</b></div>
+      <div class="bar xp"><span>LV <b id="hLvl">1</b></span><div><i id="hXp"></i></div></div>
+    </div>
+    <div class="hud-br">
+      <div class="weapon" id="hWeapon">Pistol</div>
+      <div class="ammo"><b id="hMag">12</b><span id="hRes">/ ∞</span></div>
+      <div class="slots" id="hSlots"></div>
+      <div class="sub"><span id="hGren">0</span> grenades · <kbd>B</kbd> shop</div>
+    </div>
+
+    <div class="touch" id="touch" hidden>
+      <div class="stick" id="stick"><i id="stickKnob"></i></div>
+      <button class="tb fire" id="tFire">Fire</button>
+      <button class="tb jump" id="tJump">Jump</button>
+      <button class="tb crouch" id="tCrouch">Crouch</button>
+      <button class="tb prone" id="tProne">Prone</button>
+      <button class="tb reload" id="tReload">R</button>
+      <button class="tb swap" id="tSwap">⇄</button>
+      <button class="tb gren" id="tGren">G</button>
+      <button class="tb shop" id="tShop">Shop</button>
+      <button class="tb gyro" id="tGyro" aria-pressed="false">Gyro</button>
+      <button class="tb ads" id="tAds" aria-pressed="false">Aim</button>
+    </div>
+  </div>
+
+  <!-- START -->
+  <div class="overlay" id="startScreen">
+    <div class="panel">
+      <p class="kicker">Have fun &amp; explore · 01</p>
+      <h1>Xeno <em>Siege</em></h1>
+      <p>The block is overrun. Hold the streets for as long as you can. Every wave brings more of them, and each kind hunts you differently. Use buildings, containers and barricades as cover, level up, and spend your credits between waves.</p>
+      <dl class="keys">
+        <dt><kbd>WASD</kbd> + mouse</dt><dd>Move and aim · <kbd>Shift</kbd> sprint · <kbd>Space</kbd> jump</dd>
+        <dt>Click or <kbd>F</kbd> · right-click or <kbd>Z</kbd></dt><dd>Fire · aim down sights. Tap aim to toggle it, or hold it. A two-finger tap works on trackpads. Fire from the hip or while aimed.</dd>
+        <dt><kbd>R</kbd> <kbd>1</kbd>–<kbd>5</kbd> <kbd>Q</kbd></dt><dd>Reload · pick weapon · last weapon</dd>
+        <dt><kbd>G</kbd> <kbd>E</kbd> <kbd>T</kbd></dt><dd>Grenade · place barricade · deploy turret</dd>
+        <dt><kbd>B</kbd></dt><dd>Shop (between waves) · <kbd>Esc</kbd> pause</dd>
+      </dl>
+      <div class="bestiary" id="bestiary"></div>
+      <div class="aim-settings"></div>
+      <div class="sens-settings"></div>
+      <div class="mobile-opts" id="mobileOpts" hidden>
+        <div class="gyro-settings"></div>
+        <p class="hint">For the best experience, rotate your phone to landscape.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-solid" id="startBtn">Deploy</button>
+        <a class="btn" href="../index.html#play">Back</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAUSE -->
+  <div class="overlay" id="pauseScreen" hidden>
+    <div class="panel">
+      <p class="kicker">Paused</p>
+      <h2>Catch your breath.</h2>
+      <p id="pauseStats"></p>
+      <div class="aim-settings"></div>
+      <div class="sens-settings"></div>
+      <div class="mobile-opts" id="pauseMobile" hidden>
+        <p class="kicker" style="margin:0">Gyro settings</p>
+        <div class="gyro-settings"></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-solid" id="resumeBtn">Resume</button>
+        <button class="btn" id="restartBtn2">Restart</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOP -->
+  <div class="overlay" id="shopScreen" hidden>
+    <div class="panel panel-wide">
+      <div class="shop-head">
+        <div><p class="kicker">Supply depot</p><h2>Spend wisely.</h2></div>
+        <div class="cred big"><span>Credits</span><b id="sCred">0</b></div>
+      </div>
+      <h3 class="shop-sec">Weapons</h3>
+      <div class="shop-grid" id="shopWeapons"></div>
+      <h3 class="shop-sec">Supplies &amp; deployables</h3>
+      <div class="shop-grid" id="shopItems"></div>
+      <div class="actions"><button class="btn btn-solid" id="shopClose">Back to the fight</button></div>
+    </div>
+  </div>
+
+  <!-- PERK -->
+  <div class="overlay" id="perkScreen" hidden>
+    <div class="panel panel-wide">
+      <p class="kicker">Level <span id="perkLvl">2</span></p>
+      <h2>Choose an upgrade.</h2>
+      <div class="perks" id="perks"></div>
+    </div>
+  </div>
+
+  <!-- GAME OVER -->
+  <div class="overlay" id="overScreen" hidden>
+    <div class="panel">
+      <p class="kicker">Overrun</p>
+      <h2 id="overTitle">You held out.</h2>
+      <div class="stats">
+        <div><span>Wave</span><b id="fWave">1</b></div>
+        <div><span>Kills</span><b id="fKills">0</b></div>
+        <div><span>Level</span><b id="fLvl">1</b></div>
+        <div><span>Score</span><b id="fScore">0</b></div>
+        <div><span>Accuracy</span><b id="fAcc">0%</b></div>
+        <div><span>Best wave</span><b id="fBest">0</b></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-solid" id="restartBtn">Go again</button>
+        <a class="btn" href="warehouse.html">Try the warehouse sim</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="lockhint" id="lockHint" hidden>Click the game to capture the mouse</div>
+
+  <div class="rotate" id="rotateHint" hidden>
+    <div class="phone" aria-hidden="true"><i></i></div>
+    <b>Rotate your phone</b>
+    <span>Xeno Siege plays best in landscape: wider view, and room for both thumbs.</span>
+    <button class="btn" id="rotateDismiss">Continue in portrait</button>
+  </div>
+
+  <script type="module" src="../js/siege.js"></script>
+  <script type="module" src="../js/about.js"></script>
+  <script type="module" src="../js/pwa.js"></script>
+</body>
+</html>

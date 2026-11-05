@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Faceoff — Austin Okezie</title>
+  <meta name="description" content="A multiplayer first-person shooter in the browser. Join friends on the same wifi with a room code, quick-match with strangers, or practise against bots.">
+  <meta name="theme-color" content="#0d0d0c">
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Austin Okezie">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/game.css">
+  <link rel="stylesheet" href="../css/arena.css">
+  <script src="../vendor/peerjs.min.js"></script>
+  <script type="importmap">{ "imports": { "three": "../vendor/three.module.min.js" } }</script>
+</head>
+<body data-game="arena">
+  <canvas id="stage" aria-label="Faceoff game view"></canvas>
+
+  <div class="topbar">
+    <a class="back" href="../index.html#play">← Portfolio</a>
+    <span class="title-chip">Faceoff</span>
+    <button class="pill" id="menuBtn" hidden>Menu</button>
+  </div>
+
+  <!-- HUD -->
+  <div class="hud" id="hud" hidden>
+    <div class="scope" id="scope"><i></i></div>
+    <div class="crosshair" id="crosshair"><i></i><i></i><i></i><i></i></div>
+    <div class="hitmark" id="hitmark"></div>
+    <div class="vignette" id="vignette"></div>
+    <div class="dmgdir" id="dmgdir"></div>
+    <div class="score" id="score"></div>
+    <ol class="feed" id="feed"></ol>
+    <div class="prompt" id="prompt" hidden></div>
+    <div class="respawn" id="respawn" hidden></div>
+    <div class="toast" id="toast"></div>
+    <div class="hud-bl">
+      <div class="hp"><span>Health</span><div><i id="hpBar"></i></div><b id="hpN">100</b></div>
+      <small id="regen"></small>
+    </div>
+    <div class="hud-br">
+      <div class="wname" id="wName">Pistol</div>
+      <div class="ammo" id="ammoBox"><b id="mag">12</b><span id="res">/ 36</span></div>
+      <div class="slots"><i id="slot1">1 Pistol</i><i id="slot2">2 —</i></div>
+    </div>
+    <div class="touch" id="touch" hidden>
+      <div class="stick" id="stick"><i id="knob"></i></div>
+      <button class="tb fire" id="tFire">Fire</button>
+      <button class="tb ads" id="tAds">Aim</button>
+      <button class="tb jump" id="tJump">Jump</button>
+      <button class="tb crouch" id="tCrouch">Crouch</button>
+      <button class="tb prone" id="tProne">Prone</button>
+      <button class="tb reload" id="tReload">R</button>
+      <button class="tb swap" id="tSwap">⇄</button>
+      <button class="tb pick" id="tPick" hidden>Pick up</button>
+      <button class="tb scores" id="tScores">Scores</button>
+      <button class="tb gyro" id="tGyro">Gyro</button>
+    </div>
+  </div>
+
+  <!-- MENU -->
+  <div class="overlay" id="menu">
+    <div class="panel panel-wide">
+      <p class="kicker">Have fun &amp; explore · Multiplayer</p>
+      <h1>Face<em>off</em></h1>
+      <p>A free-for-all shooter for 2–8 players. Grab a weapon, hold onto your ammo, and get the most kills first. Play friends on the same wifi with a room code, get matched with strangers, or warm up against bots.</p>
+      <label class="name">Your name <input class="input" id="nameIn" maxlength="14" autocomplete="off" placeholder="Player"></label>
+
+      <div class="modes">
+        <button class="mode" id="quickBtn"><b>Quick match</b><span>Join a random public lobby, or open one and wait for players.</span></button>
+        <button class="mode" id="createBtn"><b>Create room</b><span>Get a code to share. Best on the same wifi: lowest lag.</span></button>
+        <div class="mode join"><b>Join room</b><div class="join-row"><input class="input" id="codeIn" maxlength="5" placeholder="CODE" autocomplete="off" autocapitalize="characters"><button class="btn btn-solid" id="joinBtn">Join</button></div></div>
+        <button class="mode" id="practiceBtn"><b>Practice vs bots</b><span>Offline. No network needed.</span></button>
+      </div>
+
+      <div class="aim-settings"></div>
+      <div class="sens-settings"></div>
+      <div class="settings">
+        <div><span>Kills to win</span><div class="seg" id="limitSeg"><button data-v="10">10</button><button data-v="20">20</button><button data-v="30">30</button></div></div>
+        <div><span>Bots</span><div class="seg" id="botSeg"><button data-v="0">0</button><button data-v="1">1</button><button data-v="3">3</button><button data-v="5">5</button></div></div>
+        <div><span>Map</span><select class="input" id="mapSel"></select></div>
+      </div>
+      <p class="status" id="status" aria-live="polite"></p>
+
+      <details class="weapons-info">
+        <summary>Weapons &amp; rules</summary>
+        <ul id="weaponList"></ul>
+        <p>Aim down sights with <b>right-click</b>, a two-finger tap on a trackpad, or <kbd>Z</kbd> (the Aim button on phones). A quick tap toggles aim on, holding aims only while held. Fire with click or <kbd>F</kbd>, from the hip or while aimed. On phones you can drag the Fire button to steer while shooting: aiming tightens spread and zooms in, and is the only way to use the sniper. You always carry a pistol and can hold <b>one</b> picked-up weapon: picking up another drops yours. Ammo runs out, so grab ammo crates. Health regenerates after 5 seconds without taking damage. You respawn 3 seconds after dying.</p>
+      </details>
+      <div class="mobile-opts" id="mobileOpts" hidden>
+        <p class="kicker" style="margin:0">Phone controls</p>
+        <div class="gyro-settings"></div>
+        <p class="hint">Rotate your phone to landscape for the best experience.</p>
+      </div>
+      <p class="netnote">Connections are peer-to-peer (WebRTC). The host’s browser runs the match. On the same wifi, traffic stays on your local network. Rooms also work across the internet on most networks.</p>
+    </div>
+  </div>
+
+  <!-- LOBBY -->
+  <div class="overlay" id="lobby" hidden>
+    <div class="panel panel-wide">
+      <p class="kicker" id="lobbyKicker">Room</p>
+      <h2 id="lobbyTitle">Waiting for players</h2>
+      <div class="code-box" id="codeBox" hidden>
+        <div><span>Room code</span><b id="codeTxt">—</b></div>
+        <button class="btn" id="copyBtn">Copy invite link</button>
+      </div>
+      <ul class="roster" id="roster"></ul>
+      <p class="status" id="lobbyStatus"></p>
+      <div class="actions">
+        <button class="btn btn-solid" id="startBtn" hidden>Start match</button>
+        <button class="btn" id="addBotBtn" hidden>Add bot</button>
+        <button class="btn" id="leaveBtn">Leave</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAUSE -->
+  <div class="overlay" id="pause" hidden>
+    <div class="panel">
+      <p class="kicker">Menu</p>
+      <h2>The match keeps going.</h2>
+      <div class="aim-settings"></div>
+      <div class="sens-settings"></div>
+      <div class="gyro-settings" id="pauseGyro" hidden></div>
+      <div class="actions">
+        <button class="btn btn-solid" id="resumeBtn">Resume</button>
+        <button class="btn" id="leave2Btn">Leave match</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCOREBOARD -->
+  <div class="board" id="board" hidden><table><thead><tr><th>Player</th><th>Kills</th><th>Deaths</th><th>Ping</th></tr></thead><tbody id="boardBody"></tbody></table></div>
+
+  <!-- END -->
+  <div class="overlay" id="end" hidden>
+    <div class="panel">
+      <p class="kicker">Match over</p>
+      <h2 id="endTitle">Winner</h2>
+      <table class="endtable"><thead><tr><th>#</th><th>Player</th><th>K</th><th>D</th></tr></thead><tbody id="endBody"></tbody></table>
+      <div class="actions">
+        <button class="btn btn-solid" id="rematchBtn" hidden>Rematch</button>
+        <button class="btn" id="endLeaveBtn">Back to menu</button>
+      </div>
+      <p class="status" id="endStatus"></p>
+    </div>
+  </div>
+
+  <div class="lockhint" id="lockHint" hidden>Click the game to capture the mouse</div>
+  <div class="rotate" id="rotateHint" hidden>
+    <div class="phone" aria-hidden="true"><i></i></div>
+    <b>Rotate your phone</b>
+    <span>Faceoff plays best in landscape.</span>
+    <button class="btn" id="rotateDismiss">Continue in portrait</button>
+  </div>
+
+  <script type="module" src="../js/arena/game.js"></script>
+  <script type="module" src="../js/about.js"></script>
+  <script type="module" src="../js/pwa.js"></script>
+</body>
+</html>
