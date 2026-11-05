@@ -14,8 +14,11 @@ const store = {
 const HOLD_MS = 300;
 
 export function createAim(prefix, touch) {
-  const a = { mode: store.get(prefix + '-aim2', touch ? 'toggle' : 'auto'), on: false, pressedAt: 0, listeners: new Set() };
-  a.active = () => a.on;
+  const a = { mode: store.get(prefix + '-aim2', touch ? 'toggle' : 'auto'), on: false, pressedAt: 0, listeners: new Set(), forced: new Set(), hip: new Set() };
+  // "Aim + fire" forces aiming while held; "Hip fire" keeps the gun at the hip while held.
+  a.active = () => a.forced.size > 0 || (a.on && a.hip.size === 0);
+  a.force = (src, on) => { a.forced[on ? 'add' : 'delete'](src); a.emit(); };
+  a.hipHold = (src, on) => { a.hip[on ? 'add' : 'delete'](src); a.emit(); };
   // t = the event's own timestamp (e.timeStamp), so a busy frame can't turn a quick tap into a "hold"
   a.press = (t = performance.now()) => {
     if (a.mode === 'hold') a.on = true;
@@ -28,7 +31,8 @@ export function createAim(prefix, touch) {
     else if (a.mode === 'auto' && a.pressedAt && (t || performance.now()) - a.pressedAt > HOLD_MS) a.on = false;
     a.pressedAt = 0; a.emit();
   };
-  a.reset = () => { a.on = false; a.pressedAt = 0; a.emit(); };
+  a.reset = () => { a.on = false; a.pressedAt = 0; a.forced.clear(); a.hip.clear(); a.emit(); };
+  a.releaseAll = (t) => { a.forced.clear(); a.hip.clear(); a.release(t); };
   a.setMode = (m) => { a.mode = m; store.set(prefix + '-aim2', m); a.reset(); };
   a.emit = () => a.listeners.forEach((f) => f(a));
   a.onChange = (f) => { a.listeners.add(f); f(a); };

@@ -116,9 +116,9 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border: 1px s
 .crosshair::after { width: 5px; height: 5px; left: -2.5px; top: -2.5px; background: #ff3b1f; box-shadow: 0 0 6px rgba(255,59,31,.9); }
 .crosshair.ads::before, .crosshair.ads::after { opacity: 1; }
 .aim-settings { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); margin-bottom: 14px; }
-.aim-settings .seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 10px; padding: 3px; background: var(--bg); }
-.aim-settings .seg button { font: 500 13px var(--sans); padding: 6px 12px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); cursor: pointer; }
-.aim-settings .seg button[aria-pressed="true"] { background: var(--text); color: #111; }
+.aim-settings .seg, .notify-settings .seg { display: inline-flex; border: 1px solid var(--line-2); border-radius: 10px; padding: 3px; background: var(--bg); }
+.aim-settings .seg button, .notify-settings .seg button { font: 500 13px var(--sans); padding: 6px 12px; border: 0; border-radius: 7px; background: transparent; color: var(--muted); cursor: pointer; }
+.aim-settings .seg button[aria-pressed="true"], .notify-settings .seg button[aria-pressed="true"] { background: var(--text); color: #111; }
 
 .sens-settings { display: grid; gap: 10px; margin-bottom: 14px; }
 .sens-settings .sens, .gyro-settings .sens { display: grid; grid-template-columns: 1fr auto; gap: 6px; font-size: 13px; color: var(--muted); margin: 0; }
@@ -141,7 +141,24 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border: 1px s
 .layout-bar input { width: 90px; accent-color: var(--accent); }
 .layout-bar button { font: 500 12px var(--sans); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line-2); background: none; color: var(--text); cursor: pointer; }
 .layout-bar button.done { background: var(--text); color: #111; border-color: var(--text); }
+.layout-bar button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.layout-bar [data-selname] { display: inline-block; min-width: 72px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+.layout-editing .touch .layout-sel { outline: 3px solid var(--accent) !important; outline-offset: 4px; }
 .layout-editing .overlay:not(.controls-ov) { display: none !important; }
 .layout-editing .touch .tb, .layout-editing .touch .stick { outline: 2px dashed var(--warn); outline-offset: 3px; cursor: grab; }
 .layout-editing .touch .tb[hidden] { display: block !important; opacity: .6; }
 @media (max-width: 640px) { .layout-bar b { display: none; } }
+
+/* on-screen messages: position and size chosen by the player (js/notify.js) */
+.toast[data-pos] { font-size: calc(13px * var(--toast-scale, 1)); text-shadow: 0 1px 3px rgba(0,0,0,.8); pointer-events: none; }
+.toast[data-pos="top"] { top: 15%; bottom: auto; }
+.toast[data-pos="middle"] { top: 32%; bottom: auto; }
+.toast[data-pos="bottom"] { top: auto; bottom: 24%; }
+.notify-settings { display: grid; gap: 10px; margin-bottom: 14px; }
+.notify-settings .ns-title { font-size: 13px; color: var(--text); }
+.notify-settings .ns-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+.notify-settings .sens { display: grid; grid-template-columns: 1fr auto; gap: 6px; font-size: 13px; color: var(--muted); margin: 0; }
+.notify-settings .sens b { font-family: var(--mono); color: var(--text); font-weight: 500; }
+.notify-settings .sens input { grid-column: 1 / -1; accent-color: var(--accent); width: 100%; }
+/* aim + fire button (both shooters) */
+.tb.aimfire { width: 66px; height: 66px; border-color: var(--warn); color: var(--warn); font-size: 11px; line-height: 1.15; }

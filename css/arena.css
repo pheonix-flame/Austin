@@ -152,3 +152,5 @@ body { overflow: hidden; touch-action: none; user-select: none; -webkit-user-sel
 .touch-ui .stick { bottom: 92px; }
 .tb.crouch { right: 196px; bottom: 196px; font-size: 11px; }
 .tb.prone { right: 268px; bottom: 140px; font-size: 11px; }
+
+.tb.aimfire { right: 112px; bottom: 244px; }

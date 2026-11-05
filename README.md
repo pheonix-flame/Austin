@@ -37,8 +37,21 @@ visitors get the new files straight away.
 ## Game controls
 
 Both shooters have a **Controls** button in the top bar. On computers it rebinds every key. On
-phones it lets players drag the on-screen buttons (and the movement stick) anywhere and resize them.
-Settings are saved per device.
+phones it lets players drag the on-screen buttons (and the movement stick) anywhere, and resize each
+button on its own or all of them together. Settings are saved per device.
+
+There are three ways to shoot:
+
+| Input | Phone | Mouse | Key (default) |
+| --- | --- | --- | --- |
+| Hip fire (never aims) | **Hip fire** | — | `H` |
+| Aim only | **Aim** | right click | `Z` |
+| Aim + fire (aims while held) | **Aim + fire** | middle click | `V` |
+| Fire (aimed if you are aiming) | — | left click | `F` |
+
+On-screen messages (pickups, warnings, tips) can be set to all, important only or off, moved to the
+top, middle or bottom, resized and shown for longer or shorter, from the pause menu or the Controls
+panel. A repeated message such as "out of ammo" is shown once, not every shot. The code is in `js/notify.js`.
 
 ## Multiplayer (Faceoff)
 
@@ -70,6 +83,7 @@ js/marketmaker.js     Market Maker
 js/arena/             Faceoff (maps.js, weapons.js, net.js, world.js, avatar.js, game.js)
 js/gyro.js            shared gyro aiming + settings panel
 js/controls.js        rebindable keys + phone button layout editor
+js/notify.js          on-screen messages and their settings
 js/stance.js          crouch / prone / slide
 js/aim.js, js/sens.js aim mode and hip/aimed sensitivity
 sw.js, manifest.webmanifest, js/pwa.js   installable offline app

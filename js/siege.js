@@ -3,6 +3,7 @@ import { createGyro, mountGyroSettings } from './gyro.js';
 import { createAim, mountAimSettings, fromTouch, firePad } from './aim.js';
 import { createSens, mountSensSettings } from './sens.js';
 import { createControls, createLayout, mountControlsPanel } from './controls.js';
+import { createNotify, mountNotifySettings } from './notify.js';
 import * as ST from './stance.js';
 
 /* ==========================================================================
@@ -38,6 +39,7 @@ const BASE_FOV = isTouch ? 80 : 74;
 const camera = new THREE.PerspectiveCamera(BASE_FOV, 1, 0.05, 300);
 const aim = createAim('siege', isTouch);
 const sens = createSens('siege');
+const notify = createNotify('siege', document.getElementById('toast'));
 camera.rotation.order = 'YXZ';
 scene.add(camera);
 
@@ -916,6 +918,18 @@ function stanceAction(act) {
   const dx = mv.fx * c + mv.fz * s2, dz = -mv.fx * s2 + mv.fz * c, dl = Math.hypot(dx, dz) || 1;
   ST.stancePress(P.st, act, { sprinting: mv.sprint && P.st.s === ST.STAND, onGround: P.onGround, moving: mv.l, dx: dx / dl, dz: dz / dl, speed: 6.2 * stats.speed * 1.5 });
 }
+/* Three ways to shoot: Fire (aimed if you are aiming, else from the hip), Hip fire (never aims)
+   and Aim + fire (aims while held). Several inputs can hold the trigger at once. */
+const fireSrc = new Set();
+function fireDown(src, mode) {
+  if (mode === 'aim') aim.force(src, true); else if (mode === 'hip') aim.hipHold(src, true);
+  fireSrc.add(src); P.trigger = true; P.triggerEdge = true;
+}
+function fireUp(src) {
+  if (aim.forced.has(src)) aim.force(src, false); if (aim.hip.has(src)) aim.hipHold(src, false);
+  fireSrc.delete(src); P.trigger = fireSrc.size > 0;
+}
+function fireClear() { fireSrc.clear(); P.trigger = false; aim.releaseAll(); }
 controls.onPress((act, e) => {
   switch (act) {
     case 'reload': startReload(); break;
@@ -924,28 +938,34 @@ controls.onPress((act, e) => {
     case 'barricade': placeBarricade(); break;
     case 'turret': placeTurret(); break;
     case 'aim': aim.press(e?.timeStamp); break;
-    case 'fire': P.trigger = true; P.triggerEdge = true; break;
+    case 'fire': fireDown('kFire'); break;
+    case 'hipfire': fireDown('kHip', 'hip'); break;
+    case 'aimfire': fireDown('kAimFire', 'aim'); break;
     case 'shop': openShop(); break;
     case 'pause': pause(); break;
     case 'jump': case 'crouch': case 'prone': stanceAction(act); break;
     default: if (/^w\d$/.test(act)) { const w = WEAPONS[Number(act.slice(1)) - 1]; if (w) equip(w.id); }
   }
 });
-controls.onRelease((act, e) => { if (act === 'aim') aim.release(e?.timeStamp); if (act === 'fire') P.trigger = false; });
+controls.onRelease((act, e) => {
+  if (act === 'aim') aim.release(e?.timeStamp);
+  if (act === 'fire') fireUp('kFire'); if (act === 'hipfire') fireUp('kHip'); if (act === 'aimfire') fireUp('kAimFire');
+});
 // keys that work outside normal play
 window.addEventListener('keydown', (e) => {
   if (G.mode !== 'play' && e.key === 'Enter' && !G.modal) startGame();
   if (G.modal === 'shop' && controls.matches(e, 'shop')) closeShop();
 });
-window.addEventListener('blur', () => { touchHeld.clear(); P.trigger = false; aim.release(); });
+window.addEventListener('blur', () => { touchHeld.clear(); fireClear(); });
 
 canvas.addEventListener('mousedown', (e) => {
   if (G.mode !== 'play' || G.modal || fromTouch()) return;
   if (!locked) lock(); // capture the mouse if allowed, but the click still fires/aims
-  if (e.button === 0) { P.trigger = true; P.triggerEdge = true; }
+  if (e.button === 0) fireDown('m0');
+  if (e.button === 1) { e.preventDefault(); fireDown('m1', 'aim'); } // middle click: aim and fire
   if (e.button === 2) aim.press(e.timeStamp);
 });
-window.addEventListener('mouseup', (e) => { if (fromTouch()) return; if (e.button === 0) P.trigger = false; if (e.button === 2) aim.release(e.timeStamp); });
+window.addEventListener('mouseup', (e) => { if (fromTouch()) return; if (e.button === 0) fireUp('m0'); if (e.button === 1) fireUp('m1'); if (e.button === 2) aim.release(e.timeStamp); });
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 document.addEventListener('pointerlockchange', () => {
   locked = document.pointerLockElement === canvas;
@@ -989,10 +1009,11 @@ if (isTouch) {
   const endLook = (e) => { if (e.pointerId === touch.lookId) touch.lookId = null; };
   canvas.addEventListener('pointerup', endLook); canvas.addEventListener('pointercancel', endLook);
   const hold = (id, on, off) => { const b = $(id); b.addEventListener('pointerdown', (e) => { e.preventDefault(); on(); }); if (off) { b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off); } };
-  firePad($('tFire'), { down: () => { P.trigger = true; P.triggerEdge = true; }, up: () => (P.trigger = false),
-    look: (dx, dy) => { const k = 0.005 * sens.factor('touch', P.adsT || 0, zoomNow()); P.yaw -= dx * k; P.pitch = clamp(P.pitch - dy * k, -1.4, 1.4); } });
+  const padLook = (dx, dy) => { const k = 0.005 * sens.factor('touch', P.adsT || 0, zoomNow()); P.yaw -= dx * k; P.pitch = clamp(P.pitch - dy * k, -1.4, 1.4); };
+  firePad($('tFire'), { down: () => fireDown('tFire', 'hip'), up: () => fireUp('tFire'), look: padLook });
+  firePad($('tAimFire'), { down: () => fireDown('tAimFire', 'aim'), up: () => fireUp('tAimFire'), look: padLook });
   hold('tAds', () => aim.press(), () => aim.release());
-  aim.onChange((a) => $('tAds').setAttribute('aria-pressed', String(a.active())));
+  aim.onChange((a) => { $('tAds').setAttribute('aria-pressed', String(a.on)); $('tAimFire').setAttribute('aria-pressed', String(a.forced.has('tAimFire'))); });
   hold('tJump', () => stanceAction('jump'));
   hold('tCrouch', () => stanceAction('crouch'));
   hold('tProne', () => stanceAction('prone'));
@@ -1013,8 +1034,9 @@ const gyro = createGyro({
 const setGyro = (on) => gyro.set(on);
 mountAimSettings(aim);
 mountSensSettings(sens, isTouch);
-const layout = isTouch ? createLayout('siege', ['stick', 'tFire', 'tAds', 'tJump', 'tCrouch', 'tProne', 'tReload', 'tSwap', 'tGren', 'tShop', 'tGyro']) : null;
-mountControlsPanel({ controls, layout, touch: isTouch, hud: $('hud'), touchBox: $('touch') });
+const layout = isTouch ? createLayout('siege', ['stick', 'tFire', 'tAimFire', 'tAds', 'tJump', 'tCrouch', 'tProne', 'tReload', 'tSwap', 'tGren', 'tShop', 'tGyro']) : null;
+mountControlsPanel({ controls, layout, touch: isTouch, hud: $('hud'), touchBox: $('touch'), extraHtml: '<h3 class="ctl-h">Messages</h3><div class="notify-settings"></div>', onRender: (ov) => mountNotifySettings(notify, ov) });
+mountNotifySettings(notify);
 if (isTouch) {
   $('mobileOpts').hidden = false; $('pauseMobile').hidden = false;
   mountGyroSettings(gyro);
@@ -1041,9 +1063,9 @@ async function goLandscape() {
 /* ==========================================================================
    UI: banner, toast, HUD, shop, perks, pause, game over
    ========================================================================== */
-let bannerT = 0, toastT = 0, hitT = 0;
+let bannerT = 0, hitT = 0;
 function banner(title, sub) { const b = $('banner'); b.innerHTML = `${title}<small>${sub || ''}</small>`; b.classList.add('on'); bannerT = 3; }
-function toast(msg, bad) { const t = $('toast'); t.textContent = msg; t.style.color = bad ? 'var(--accent)' : ''; t.classList.add('on'); toastT = 1.4; }
+function toast(msg, bad) { notify.show(msg, bad ? 'warn' : 'info'); }
 function hitmark(crit) { const h = $('hitmark'); h.className = 'hitmark on' + (crit ? ' crit' : ''); hitT = 0.12; }
 
 const radar = document.createElement('canvas'); radar.width = 240; radar.height = 240;
@@ -1098,7 +1120,7 @@ function updateHud() {
 }
 
 function openModal(name) {
-  G.modal = name; controls.clear(); touchHeld.clear(); P.trigger = false; aim.release();
+  G.modal = name; controls.clear(); touchHeld.clear(); fireClear();
   if (document.pointerLockElement) document.exitPointerLock();
   $('lockHint').hidden = true;
 }
@@ -1186,7 +1208,7 @@ function startGame() {
   WEAPONS.forEach((w) => (viewModels[w.id].visible = w.id === 'pistol'));
   computeFlow(P.pos.x, P.pos.z);
   startIntermission(true);
-  setTimeout(() => toast(isTouch ? 'Aim: tap Aim · Fire: hold and drag · push the stick fully forward to sprint' : `Aim: right-click or ${controls.keysFor('aim')} · Fire: click or ${controls.keysFor('fire')} · Crouch ${controls.keysFor('crouch')} · Prone ${controls.keysFor('prone')}`), 3200);
+  setTimeout(() => toast(isTouch ? 'Hip fire · Aim · Aim + fire: hold and drag to steer · stick fully forward to sprint' : `Click: fire · Right-click: aim · Middle-click or ${controls.keysFor('aimfire')}: aim + fire · ${controls.keysFor('hipfire')}: hip fire`), 3200);
   audio();
   if (!isTouch) { lock(); $('lockHint').hidden = false; }
   else { goLandscape(); if (gyro.on) setGyro(true); }
@@ -1527,7 +1549,7 @@ function frame(now) {
   tracers.forEach((t) => { if (t.life > 0) { t.life -= dt; t.l.material.opacity = Math.max(0, t.life / 0.07) * 0.9; } else t.l.material.opacity = 0; });
   boomLight.intensity = Math.max(0, boomLight.intensity - dt * 200);
   if (bannerT > 0) { bannerT -= dt; if (bannerT <= 0) $('banner').classList.remove('on'); }
-  if (toastT > 0) { toastT -= dt; if (toastT <= 0) $('toast').classList.remove('on'); }
+  notify.tick(dt);
   if (hitT > 0) { hitT -= dt; if (hitT <= 0) $('hitmark').className = 'hitmark fade'; }
   vmRoot.visible = G.mode === 'play';
   if (G.mode !== 'play' && camera.fov !== BASE_FOV) { camera.fov = BASE_FOV; camera.updateProjectionMatrix(); }
@@ -1546,4 +1568,4 @@ requestAnimationFrame(frame);
 
 // tiny hook for automated smoke tests
 window.addEventListener('aboutopen', () => { if (G.mode === 'play' && !G.modal) pause(); });
-window.__siege = { D, step: (dt) => { G.time += dt; updateAliens(dt); updateProjectiles(dt); updatePickups(dt); updateWaves(dt); }, G, P, aliens, renderer, scene, camera, buildAlien, animateAlien, TYPES, gyro };
+window.__siege = { D, step: (dt) => { G.time += dt; updateAliens(dt); updateProjectiles(dt); updatePickups(dt); updateWaves(dt); }, G, P, aliens, renderer, scene, camera, buildAlien, animateAlien, TYPES, gyro, aim, notify };

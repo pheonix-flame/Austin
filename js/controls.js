@@ -19,8 +19,10 @@ export const COMMON_ACTIONS = [
   ['sprint', 'Sprint', ['ShiftLeft', 'ShiftRight']],
   ['crouch', 'Crouch (slide while sprinting)', ['KeyC']],
   ['prone', 'Go prone', ['KeyX']],
-  ['fire', 'Fire (keyboard)', ['KeyF']],
-  ['aim', 'Aim down sights (keyboard)', ['KeyZ']],
+  ['fire', 'Fire (aimed while aiming)', ['KeyF']],
+  ['hipfire', 'Hip fire (never aims)', ['KeyH']],
+  ['aim', 'Aim down sights', ['KeyZ']],
+  ['aimfire', 'Aim and fire', ['KeyV']],
   ['reload', 'Reload', ['KeyR']],
   ['swap', 'Switch weapon', ['KeyQ']],
 ];
@@ -67,30 +69,38 @@ export function createControls(prefix, extra = [], active = () => true) {
 }
 
 /* ---------- phone button layout ---------- */
+// Each button keeps its own position and size; "All" scales every button together on top of that.
 export function createLayout(prefix, ids) {
-  const L = { pos: store.get(prefix + '-layout', {}), size: store.get(prefix + '-btnsize', 1), ids, editing: false };
+  const L = { pos: store.get(prefix + '-layout', {}), size: store.get(prefix + '-btnsize', 1), sizes: store.get(prefix + '-btnsizes', {}), ids, editing: false, sel: null, onSelect: null };
+  L.sizeOf = (id) => L.sizes[id] ?? 1;
   L.apply = () => {
     for (const id of ids) {
       const el = document.getElementById(id); if (!el) continue;
       const p = L.pos[id];
-      el.style.scale = String(L.size);
+      el.style.scale = String(+(L.size * L.sizeOf(id)).toFixed(3));
       if (p) Object.assign(el.style, { left: p.x + '%', top: p.y + '%', right: 'auto', bottom: 'auto', translate: '-50% -50%', transform: 'none' });
       else Object.assign(el.style, { left: '', top: '', right: '', bottom: '', translate: '', transform: '' });
+      el.classList.toggle('layout-sel', L.editing && L.sel === id);
     }
   };
-  L.reset = () => { L.pos = {}; L.size = 1; store.set(prefix + '-layout', L.pos); store.set(prefix + '-btnsize', 1); L.apply(); };
-  L.save = () => { store.set(prefix + '-layout', L.pos); store.set(prefix + '-btnsize', L.size); };
+  L.select = (id) => { L.sel = id; L.apply(); L.onSelect?.(id); };
+  L.setSize = (v) => { if (L.sel) L.sizes[L.sel] = v; else L.size = v; L.apply(); };
+  L.reset = () => { L.pos = {}; L.size = 1; L.sizes = {}; L.save(); L.apply(); L.onSelect?.(L.sel); };
+  L.save = () => { store.set(prefix + '-layout', L.pos); store.set(prefix + '-btnsize', L.size); store.set(prefix + '-btnsizes', L.sizes); };
   let drag = null;
   const onDown = (e) => {
     if (!L.editing) return;
     const el = e.target.closest(ids.map((i) => '#' + i).join(','));
     if (!el || e.target.closest('.layout-bar')) return;
     e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-    drag = { el, id: el.id, pid: e.pointerId };
+    drag = { el, id: el.id, pid: e.pointerId, x: e.clientX, y: e.clientY, moved: false };
+    L.select(el.id);
   };
   const onMove = (e) => {
     if (!drag || e.pointerId !== drag.pid) return;
     e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 6) return; // a tap only selects
+    drag.moved = true;
     const x = Math.max(3, Math.min(97, (e.clientX / innerWidth) * 100)), y = Math.max(5, Math.min(95, (e.clientY / innerHeight) * 100));
     L.pos[drag.id] = { x: +x.toFixed(1), y: +y.toFixed(1) }; L.apply();
   };
@@ -104,7 +114,7 @@ export function createLayout(prefix, ids) {
 }
 
 /* ---------- Controls panel (top-bar button + overlay) ---------- */
-export function mountControlsPanel({ controls, layout, touch, hud, touchBox, notes = '' }) {
+export function mountControlsPanel({ controls, layout, touch, hud, touchBox, notes = '', extraHtml = '', onRender }) {
   const bar = document.querySelector('.topbar');
   const btn = document.createElement('button'); btn.className = 'about-btn controls-btn'; btn.type = 'button';
   btn.innerHTML = '<span class="full">Controls</span><span class="short" aria-hidden="true">⚙</span>'; btn.setAttribute('aria-label', 'Controls');
@@ -112,17 +122,18 @@ export function mountControlsPanel({ controls, layout, touch, hud, touchBox, not
   const ov = document.createElement('div'); ov.className = 'overlay about controls-ov'; ov.hidden = true;
   document.body.appendChild(ov);
   const editBar = document.createElement('div'); editBar.className = 'layout-bar'; editBar.hidden = true;
-  editBar.innerHTML = `<b>Drag buttons to move them</b><label>Size <input type="range" min="0.6" max="1.6" step="0.05" data-size></label><button type="button" data-lreset>Reset</button><button type="button" class="done" data-ldone>Done</button>`;
+  editBar.innerHTML = `<b>Drag to move · tap to pick one to resize</b><label><span data-selname>All buttons</span> <input type="range" min="0.5" max="1.8" step="0.05" data-size></label><button type="button" data-lall>All</button><button type="button" data-lreset>Reset</button><button type="button" class="done" data-ldone>Done</button>`;
   document.body.appendChild(editBar);
 
   const render = () => {
-    const keysHtml = `<h3 class="ctl-h">Keyboard</h3><p class="ctl-note">Left click fires and right click aims (two-finger tap on a trackpad). Click a key below, then press the new key. Backspace clears it, Esc cancels.</p>
+    const keysHtml = `<h3 class="ctl-h">Keyboard</h3><p class="ctl-note">Mouse: left click fires (aimed while you are aiming), right click aims (two-finger tap on a trackpad), middle click aims and fires. Click a key below, then press the new key. Backspace clears it, Esc cancels.</p>
       <table class="keytable"><tbody>${controls.defs.map(([id, label]) => `<tr><td>${esc(label)}</td>${[0, 1].map((s) => `<td><button type="button" class="keycap" data-bind="${id}" data-slot="${s}">${esc(controls.binds[id][s] ? keyLabel(controls.binds[id][s]) : '+')}</button></td>`).join('')}</tr>`).join('')}</tbody></table>
       <div class="actions"><button type="button" class="btn" data-kreset>Reset keys</button></div>`;
-    const layoutHtml = `<h3 class="ctl-h">Phone buttons</h3><p class="ctl-note">Move any on-screen button, including the movement stick, and change their size. Your layout is saved on this device.</p>
+    const layoutHtml = `<h3 class="ctl-h">Phone buttons</h3><p class="ctl-note">Three ways to shoot: <b>Hip fire</b> (never aims), <b>Aim</b> (aims only) and <b>Aim + fire</b> (aims and shoots while held). Drag on either fire button to steer. Move any on-screen button, including the movement stick. Tap a button to resize just that one, or use All to resize every button. Your layout is saved on this device.</p>
       <div class="actions"><button type="button" class="btn btn-solid" data-ledit>Customise button layout</button><button type="button" class="btn" data-lreset2>Reset layout</button></div>`;
     ov.innerHTML = `<div class="panel panel-wide"><div class="about-head"><div><p class="kicker">Settings</p><h2>Controls</h2></div><button class="close-x" type="button" data-close>Close</button></div>
-      ${notes ? `<p class="ctl-note">${notes}</p>` : ''}${touch ? layoutHtml : ''}${keysHtml}</div>`;
+      ${notes ? `<p class="ctl-note">${notes}</p>` : ''}${touch ? layoutHtml : ''}${extraHtml}${keysHtml}</div>`;
+    onRender?.(ov);
   };
   const open = () => { render(); ov.hidden = false; window.dispatchEvent(new Event('aboutopen')); };
   const close = () => { ov.hidden = true; controls.capturing = null; window.dispatchEvent(new Event('aboutclose')); };
@@ -158,15 +169,25 @@ export function mountControlsPanel({ controls, layout, touch, hud, touchBox, not
     restore = { hud: hud?.hidden, touch: touchBox?.hidden };
     if (hud) hud.hidden = false; if (touchBox) touchBox.hidden = false;
     document.body.classList.add('layout-editing'); layout.editing = true;
-    editBar.hidden = false; editBar.querySelector('[data-size]').value = layout.size;
+    editBar.hidden = false; layout.onSelect = syncBar; layout.select(null);
     window.dispatchEvent(new Event('aboutopen'));
   };
   const endEdit = () => {
-    layout.editing = false; layout.save(); document.body.classList.remove('layout-editing'); editBar.hidden = true;
+    layout.editing = false; layout.sel = null; layout.save(); layout.apply(); document.body.classList.remove('layout-editing'); editBar.hidden = true;
     if (hud && restore) hud.hidden = restore.hud; if (touchBox && restore) touchBox.hidden = restore.touch;
     window.dispatchEvent(new Event('aboutclose'));
   };
-  editBar.addEventListener('input', (e) => { if (e.target.dataset.size !== undefined) { layout.size = Number(e.target.value); layout.apply(); } });
-  editBar.addEventListener('click', (e) => { if (e.target.closest('[data-lreset]')) { layout.reset(); editBar.querySelector('[data-size]').value = 1; } if (e.target.closest('[data-ldone]')) endEdit(); });
+  const nameOf = (id) => { const el = document.getElementById(id); return id === 'stick' ? 'Move stick' : (el?.getAttribute('aria-label') || el?.textContent.trim() || id); };
+  const syncBar = (id) => {
+    editBar.querySelector('[data-selname]').textContent = id ? nameOf(id) : 'All buttons';
+    editBar.querySelector('[data-size]').value = id ? layout.sizeOf(id) : layout.size;
+    editBar.querySelector('[data-lall]').setAttribute('aria-pressed', String(!id));
+  };
+  editBar.addEventListener('input', (e) => { if (e.target.dataset.size !== undefined) layout.setSize(Number(e.target.value)); });
+  editBar.addEventListener('click', (e) => {
+    if (e.target.closest('[data-lall]')) layout.select(null);
+    if (e.target.closest('[data-lreset]')) layout.reset();
+    if (e.target.closest('[data-ldone]')) endEdit();
+  });
   return { open, close };
 }

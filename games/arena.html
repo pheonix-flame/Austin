@@ -53,7 +53,8 @@
     </div>
     <div class="touch" id="touch" hidden>
       <div class="stick" id="stick"><i id="knob"></i></div>
-      <button class="tb fire" id="tFire">Fire</button>
+      <button class="tb fire" id="tFire" aria-label="Hip fire">Hip<br>fire</button>
+      <button class="tb aimfire" id="tAimFire" aria-label="Aim and fire">Aim<br>+ fire</button>
       <button class="tb ads" id="tAds">Aim</button>
       <button class="tb jump" id="tJump">Jump</button>
       <button class="tb crouch" id="tCrouch">Crouch</button>
@@ -83,6 +84,7 @@
 
       <div class="aim-settings"></div>
       <div class="sens-settings"></div>
+      <div class="notify-settings"></div>
       <div class="settings">
         <div><span>Kills to win</span><div class="seg" id="limitSeg"><button data-v="10">10</button><button data-v="20">20</button><button data-v="30">30</button></div></div>
         <div><span>Bots</span><div class="seg" id="botSeg"><button data-v="0">0</button><button data-v="1">1</button><button data-v="3">3</button><button data-v="5">5</button></div></div>
@@ -130,6 +132,7 @@
       <h2>The match keeps going.</h2>
       <div class="aim-settings"></div>
       <div class="sens-settings"></div>
+      <div class="notify-settings"></div>
       <div class="gyro-settings" id="pauseGyro" hidden></div>
       <div class="actions">
         <button class="btn btn-solid" id="resumeBtn">Resume</button>

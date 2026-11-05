@@ -7,7 +7,7 @@
      multiplayer signalling use WebSockets, which never pass through here.
    Bump VERSION when you deploy to replace the precached files promptly.
    ========================================================================== */
-const VERSION = 'ao-v2';
+const VERSION = 'ao-v3';
 const CORE = [
   './',
   './assets/favicon.svg',
@@ -41,6 +41,7 @@ const CORE = [
   './js/builds.js',
   './js/content.js',
   './js/controls.js',
+  './js/notify.js',
   './js/gyro.js',
   './js/main.js',
   './js/market/app.js',
