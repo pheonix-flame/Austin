@@ -1,0 +1,35 @@
+{
+  "id": "/games/arena.html",
+  "name": "Faceoff · Austin Okezie",
+  "short_name": "Faceoff",
+  "description": "Peer-to-peer multiplayer shooter for 2 to 8 players, with practice bots.",
+  "start_url": "./arena.html",
+  "scope": "../",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0d0d0c",
+  "theme_color": "#0d0d0c",
+  "icons": [
+    {
+      "src": "../assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "../assets/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "../assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

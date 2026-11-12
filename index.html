@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Austin Okezie — Software Engineer · AppSecOps</title>
+  <meta name="description" content="Austin Chichebem Okezie — software engineer (AppSecOps) building secure enterprise applications, database security tooling, RAG systems and MCP servers. Oracle-certified, Oracle ACE Apprentice.">
+  <meta name="theme-color" content="#0d0d0c">
+  <meta property="og:title" content="Austin Okezie — Software Engineer · AppSecOps">
+  <meta property="og:description" content="Application security, secure development and database security. Portfolio, project notes and six browser games.">
+  <meta property="og:url" content="https://austin-ok.vercel.app/">
+  <meta property="og:image" content="https://austin-ok.vercel.app/assets/icons/icon-512.png">
+  <link rel="canonical" href="https://austin-ok.vercel.app/">
+  <meta property="og:type" content="website">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">{ "imports": { "three": "./vendor/three.module.min.js" } }</script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="nav" id="top">
+    <a class="brand" href="#top" aria-label="Austin Okezie, home">
+      <span class="brand-mark">AO</span>
+      <span class="brand-name">Austin Okezie</span>
+    </a>
+    <nav aria-label="Primary">
+      <button class="nav-toggle" aria-expanded="false" aria-controls="nav-links">Menu</button>
+      <ul id="nav-links">
+        <li><a href="#work">Work</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#stack">Stack</a></li>
+        <li><a href="#credentials">Credentials</a></li>
+        <li><a href="#play">Play</a></li>
+        <li><a class="nav-cta" href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
+      <div class="hero-inner wrap">
+        <p class="eyebrow"><span class="dot"></span> Software Engineer · AppSecOps</p>
+        <h1 id="hero-title">
+          I build software that<br>
+          <em>holds up</em> under audit,<br>
+          load and scrutiny.
+        </h1>
+        <p class="lede">
+          Software engineer specialising in application security and secure development.
+          I build enterprise applications, REST APIs and integrations in Python, PL/SQL and
+          JavaScript, and secure them from the database up: access control, SQL-injection
+          prevention, audit trails and automated SAST, SCA and DAST.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-solid" href="#work">Selected work</a>
+          <a class="btn btn-ghost" href="#play">Have fun &amp; explore <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+      <div class="hero-meta wrap" aria-hidden="true">
+        <span>Oracle · SAP HANA · PostgreSQL · MS SQL</span>
+        <span class="scroll-hint">Scroll</span>
+        <span>Python · PL/SQL · JavaScript</span>
+      </div>
+    </section>
+
+    <section class="figures wrap" aria-label="At a glance">
+      <div class="figure"><span class="num" data-count="7" data-suffix="+">7+</span><span class="label">years shipping code, from quant desks to factory floors</span></div>
+      <div class="figure"><span class="num" data-count="35" data-suffix="%">35%</span><span class="label">lift in search relevance from an item-similarity model</span></div>
+      <div class="figure"><span class="num">1.10→1.65</span><span class="label">Sharpe ratio after strategy backtesting &amp; tuning</span></div>
+      <div class="figure"><span class="num" data-count="6">6</span><span class="label">professional certifications &amp; recognitions</span></div>
+    </section>
+
+    <section class="about wrap" aria-labelledby="about-title">
+      <div class="section-head">
+        <span class="index">01</span>
+        <h2 id="about-title">Profile</h2>
+      </div>
+      <div class="about-body">
+        <p class="big">
+          I specialise in <strong>application security</strong>: secure application development and
+          <strong>database security</strong> across Oracle, SAP HANA, PostgreSQL and MS SQL Server.
+          Security is part of how the software is built, not a review at the end: least-privilege
+          access control, SQL-injection prevention, audit trails, and SAST, SCA and DAST that test
+          every change automatically.
+        </p>
+        <div class="about-cols">
+          <p>
+            Day to day I build enterprise applications, REST APIs and system integrations in Python,
+            PL/SQL and JavaScript, and lead the engineering team that delivers applications used
+            across multiple business entities, including a SAST scanner for Oracle APEX apps built
+            on the OWASP Top 10. Before that I spent years in
+            data science and quantitative finance — forecasting, segmentation, risk models and
+            systematic trading — which still shapes how I measure whether software is actually working.
+          </p>
+          <p>
+            Lately: retrieval-augmented generation (RAG) systems and Model Context Protocol (MCP)
+            servers that connect AI assistants to enterprise data, safely. Oracle-certified:
+            OCI DevOps Professional, OCI Multicloud Architect Professional and APEX Cloud Developer;
+            Lean Six Sigma Green Belt; Oracle ACE Apprentice.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="work wrap" id="work" aria-labelledby="work-title">
+      <div class="section-head">
+        <span class="index">02</span>
+        <h2 id="work-title">Selected work</h2>
+        <p class="section-note">Enterprise systems are internal, so these are described rather than linked. Community projects are live.</p>
+      </div>
+
+      <div class="cards" id="project-cards">
+        <noscript><p class="section-note">Enable JavaScript to see the project list.</p></noscript>
+      </div>
+
+      <div class="community">
+        <div class="community-head">
+          <h3>Community development</h3>
+          <p>Volunteer builds for the National Youth Service Corps in Lagos and my student association.</p>
+        </div>
+        <ol class="community-list" id="community-list"></ol>
+      </div>
+    </section>
+
+    <section class="experience wrap" id="experience" aria-labelledby="exp-title">
+      <div class="section-head">
+        <span class="index">03</span>
+        <h2 id="exp-title">Experience</h2>
+      </div>
+
+      <ol class="timeline">
+        <li class="role">
+          <div class="role-when">2025 — Present</div>
+          <div class="role-what">
+            <h3>Software Engineer <span>Tolaram Africa Enterprises</span></h3>
+            <p>Lead an engineering team building enterprise applications, APIs and AI tooling used across Tolaram entities.</p>
+            <ul>
+              <li>Built an in-house SAST scanner for Oracle APEX and other low-code apps and their databases, with 0–100 severity scoring.</li>
+              <li>Built RAG applications and MCP servers connecting AI assistants to enterprise data.</li>
+              <li>Shipped the group helpdesk, reconciliation suite, SAP audit trails and multi-level approval workflows.</li>
+              <li>Item-similarity model: +35% search relevance, −20% category mismatches.</li>
+            </ul>
+          </div>
+        </li>
+        <li class="role">
+          <div class="role-when">2023 — 2025</div>
+          <div class="role-what">
+            <h3>Junior Software Developer <span>Dufil Prima Foods</span></h3>
+            <ul>
+              <li>Product weighing application: +25% accuracy, −80% manual data entry.</li>
+              <li>Real-time visualisations from machine data, improving production monitoring by 20%.</li>
+              <li>Factory-specific applications that lifted production efficiency by 30%.</li>
+            </ul>
+          </div>
+        </li>
+        <li class="role">
+          <div class="role-when">2021 — 2023</div>
+          <div class="role-what">
+            <h3>Data Scientist &amp; Quant Analyst <span>Edusearch Global Network · Hybrid</span></h3>
+            <ul>
+              <li>ETL pipelines and automated reporting dashboards in Python and SQL.</li>
+              <li>Cash-flow forecasting, pricing optimisation and CLV/RFM customer segmentation for SMB analytics.</li>
+              <li>VaR and Monte Carlo risk models; systematic strategies deployed on MetaTrader 5.</li>
+            </ul>
+          </div>
+        </li>
+        <li class="role">
+          <div class="role-when">2019 — 2021</div>
+          <div class="role-what">
+            <h3>Quantitative Analyst, Contract <span>Legendary LM Analytics · Remote, South Africa</span></h3>
+            <ul>
+              <li>Backtested and deployed Python strategies on MT5, taking Sharpe from 1.1 to 1.65.</li>
+              <li>Automated live execution and statistical-arbitrage models: −3.5 bps slippage, +12% signal accuracy.</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="stack wrap" id="stack" aria-labelledby="stack-title">
+      <div class="section-head">
+        <span class="index">04</span>
+        <h2 id="stack-title">Stack &amp; practice</h2>
+      </div>
+      <div class="stack-grid">
+        <div class="stack-group"><h3>Databases</h3><p>Oracle Database, SAP HANA, PostgreSQL, MS SQL Server, MySQL, PL/SQL, SQL</p></div>
+        <div class="stack-group"><h3>Database security</h3><p>Access control, least privilege, security scanning, SQL-injection prevention, audit logging, data integrity, migration</p></div>
+        <div class="stack-group"><h3>Application security</h3><p>Secure coding, OWASP Top 10, SAST · SCA · DAST, XSS prevention, authN/authZ, session management, API security, code review</p></div>
+        <div class="stack-group"><h3>Security testing</h3><p>Opengrep, SonarQube, Burp Suite</p></div>
+        <div class="stack-group"><h3>Cloud &amp; DevOps</h3><p>OCI (IAM, VCN, Compute, Storage), Terraform, Docker, Kubernetes (OKE), Git</p></div>
+        <div class="stack-group"><h3>Languages</h3><p>Python, JavaScript, PHP, PL/SQL, REST APIs, Oracle APEX</p></div>
+        <div class="stack-group"><h3>AI &amp; data science</h3><p>Machine learning, RAG, MCP servers, LLM integration, Oracle Select AI, TensorFlow, scikit-learn, ETL, analytics</p></div>
+        <div class="stack-group"><h3>Governance &amp; audit</h3><p>IT audit support, internal controls, approval workflows, reconciliation, change management, root-cause analysis, Lean Six Sigma</p></div>
+      </div>
+    </section>
+
+    <section class="credentials wrap" id="credentials" aria-labelledby="cred-title">
+      <div class="section-head">
+        <span class="index">05</span>
+        <h2 id="cred-title">Credentials</h2>
+        <p class="section-note">Linked items open the issuer's verification page.</p>
+      </div>
+      <ul class="cred-list">
+        <li><a href="https://catalog-education.oracle.com/pls/certview/sharebadge?id=6BD3243E86E5FAFA3B03D4778FEC053B227C485CD5D0E5289AB788608408ED36" target="_blank" rel="noopener"><span class="issuer">Oracle</span><span class="cred">OCI DevOps Professional</span><span class="verify">Verify ↗</span></a></li>
+        <li><a href="https://catalog-education.oracle.com/pls/certview/sharebadge?id=F53049759950560EFD139691DDAF8C496A0293097D1861814A8F32FEE06A233F" target="_blank" rel="noopener"><span class="issuer">Oracle</span><span class="cred">OCI Multicloud Architect Professional</span><span class="verify">Verify ↗</span></a></li>
+        <li><a href="https://catalog-education.oracle.com/ords/certview/sharebadge?id=B9A95422666A6ED621E5F51C60C1508F3FDE46A413A9718AE214F6EC980A80B1" target="_blank" rel="noopener"><span class="issuer">Oracle</span><span class="cred">APEX Cloud Developer</span><span class="verify">Verify ↗</span></a></li>
+        <li><a href="https://catalog-education.oracle.com/ords/certview/sharebadge?id=B8031937904674830B305BA00CF806EDA50FD3B1F38CFB7BC3518CA03BFBB37B" target="_blank" rel="noopener"><span class="issuer">Oracle</span><span class="cred">OCI Associate</span><span class="verify">Verify ↗</span></a></li>
+        <li><a href="https://certificates.benchmarksixsigma.com/187392616" target="_blank" rel="noopener"><span class="issuer">Benchmark Six Sigma · 2026</span><span class="cred">AI-Enabled Lean Six Sigma Green Belt</span><span class="verify">Verify ↗</span></a></li>
+        <li><div><span class="issuer">Oracle ACE Program · 2026</span><span class="cred">Oracle ACE Apprentice</span><span class="verify muted">Recognition</span></div></li>
+      </ul>
+    </section>
+
+    <section class="play" id="play" aria-labelledby="play-title">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="index">06</span>
+          <h2 id="play-title">Have fun &amp; explore</h2>
+          <p class="section-note">Six things I built for this site, from multiplayer to analytics. Each card says how it works, and every game has a “How it’s built” panel. Everything runs in the browser, with no installs and no sign-up.</p>
+        </div>
+        <div class="games">
+          <a class="game tilt game-wide" href="games/arena.html" data-build="arena">
+            <canvas class="game-preview" data-preview="arena" aria-hidden="true"></canvas>
+            <div class="game-body">
+              <span class="tag">Multiplayer · FPS</span>
+              <h3>Faceoff</h3>
+              <p>A free-for-all shooter for 2–8 players. Share a room code with friends on the same wifi, quick-match with strangers, or practise against bots. Sniper, assault rifle, SMG and shotgun each play differently; ammo runs out and health regenerates. First to 10, 20 or 30 kills wins.</p>
+              <div class="build" aria-label="How it is built"></div>
+              <span class="play-cta">Play <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+          <a class="game tilt" href="games/alien.html" data-build="siege">
+            <canvas class="game-preview" data-preview="siege" aria-hidden="true"></canvas>
+            <div class="game-body">
+              <span class="tag">3D · First-person shooter</span>
+              <h3>Xeno Siege</h3>
+              <p>Hold a town block against endless waves. Five alien types, each with its own tactic, plus a boss every fifth wave. Level up, pick perks, buy weapons and use buildings as cover.</p>
+              <div class="build" aria-label="How it is built"></div>
+              <span class="play-cta">Play <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+          <a class="game tilt" href="games/warehouse.html" data-build="warehouse">
+            <canvas class="game-preview" data-preview="warehouse" aria-hidden="true"></canvas>
+            <div class="game-body">
+              <span class="tag">3D · Operations simulation</span>
+              <h3>Floor Forward</h3>
+              <p>Run a growing warehouse. Find the bottleneck, handle breakdowns and cyber incidents on the floor, and modernise with robots and software. Lay no one off: reskill them.</p>
+              <div class="build" aria-label="How it is built"></div>
+              <span class="play-cta">Play <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+          <a class="game tilt" href="games/quant.html" data-build="market">
+            <canvas class="game-preview" data-preview="quant" aria-hidden="true"></canvas>
+            <div class="game-body">
+              <span class="tag">Markets · Live data</span>
+              <h3>Market Lab</h3>
+              <p>Monitor V75, V100, Step Index, major FX pairs, gold and crypto live, or switch to simulation. Backtest strategies with Monte Carlo significance tests, model risk with GARCH and VaR, price options, then take the skill-or-luck challenge.</p>
+              <div class="build" aria-label="How it is built"></div>
+              <span class="play-cta">Open the lab <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+          <a class="game tilt" href="games/marketmaker.html" data-build="marketmaker">
+            <canvas class="game-preview" data-preview="mm" aria-hidden="true"></canvas>
+            <div class="game-body">
+              <span class="tag">Quant · Market making</span>
+              <h3>Market Maker</h3>
+              <p>Quote bids and asks against noise and informed traders, manage inventory through news shocks and toxic flow, and try to beat an Avellaneda–Stoikov bot on the same order flow.</p>
+              <div class="build" aria-label="How it is built"></div>
+              <span class="play-cta">Make a market <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+          <a class="game tilt game-wide" href="games/quantgym.html" data-build="quantgym">
+            <canvas class="game-preview" data-preview="gym" aria-hidden="true"></canvas>
+            <div class="game-body">
+              <span class="tag">Probability · Maths</span>
+              <h3>Quant Gym</h3>
+              <p>Size bets with the Kelly criterion, estimate probabilities like a Bayesian, and race a 60-second mental-math sprint.</p>
+              <div class="build" aria-label="How it is built"></div>
+              <span class="play-cta">Train <span aria-hidden="true">→</span></span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact wrap" id="contact" aria-labelledby="contact-title">
+      <p class="eyebrow">Contact</p>
+      <h2 id="contact-title">Building something that has to be<br><em>secure, correct and measurable?</em></h2>
+      <div class="contact-links">
+        <a class="contact-big" href="mailto:okezieaustinch@yahoo.com">okezieaustinch@yahoo.com</a>
+        <div class="contact-row">
+          <a href="https://www.linkedin.com/in/eyes0fhorus/" target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href="#play">Play a game</a>
+          <a href="#top">Back to top ↑</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <span>© <span id="year">2026</span> Austin Chichebem Okezie</span>
+    <span>Hand-built with HTML, CSS &amp; three.js</span>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+  <script type="module" src="js/pwa.js"></script>
+</body>
+</html>

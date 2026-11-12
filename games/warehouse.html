@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Floor Forward — Austin Okezie</title>
+  <meta name="description" content="A 3D warehouse simulation: grow throughput, handle production problems and modernise the floor without laying anyone off.">
+  <meta name="theme-color" content="#0d0d0c">
+  <link rel="manifest" href="warehouse.webmanifest">
+  <link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Floor Forward">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/game.css">
+  <link rel="stylesheet" href="../css/warehouse.css">
+  <script type="importmap">{ "imports": { "three": "../vendor/three.module.min.js" } }</script>
+</head>
+<body data-game="warehouse">
+  <canvas id="stage" aria-label="Warehouse floor"></canvas>
+
+  <div class="topbar">
+    <a class="back" href="../index.html#play">← Portfolio</a>
+    <div class="clock"><b id="tDay">Day 1</b><span id="tHour">08:00</span></div>
+    <div class="speed" role="group" aria-label="Speed">
+      <button data-speed="0" title="Pause (Space)">❚❚</button>
+      <button data-speed="1" title="1× (1)">1×</button>
+      <button data-speed="2" title="2× (2)">2×</button>
+      <button data-speed="4" title="4× (3)">4×</button>
+    </div>
+  </div>
+
+  <aside class="hud-left" id="hudLeft" hidden>
+    <button class="collapse" id="collapse" aria-expanded="true">Dashboard</button>
+    <div class="hud-body">
+      <div class="kpis">
+        <div><span>Cash</span><b id="kCash">$0</b></div>
+        <div><span>Demand / day</span><b id="kDemand">0</b></div>
+        <div><span>Output / hr</span><b id="kThru">0</b></div>
+        <div><span>Backlog</span><b id="kBacklog">0</b></div>
+        <div><span>Customer sat.</span><b id="kCsat">0</b><i class="meter"><i id="mCsat"></i></i></div>
+        <div><span>Morale</span><b id="kMorale">0</b><i class="meter"><i id="mMorale"></i></i></div>
+        <div><span>Error rate</span><b id="kErr">0%</b></div>
+        <div><span>Headcount</span><b id="kHead">24</b><em class="badge ok" id="kLayoff">0 layoffs</em></div>
+      </div>
+      <div class="modern">
+        <div class="modern-top"><span>Modernisation</span><b id="kModern">0%</b></div>
+        <i class="meter big"><i id="mModern"></i><u></u></i>
+        <small>Goal: 85% with zero layoffs, customer satisfaction ≥ 70 and cash ≥ $0.</small>
+      </div>
+      <h3>Flow <small>slowest station sets output</small></h3>
+      <ol class="stations" id="stationList"></ol>
+      <button class="btn office-btn" id="officeBtn">Office · upgrades, hiring, training <kbd>O</kbd></button>
+    </div>
+  </aside>
+
+  <aside class="alerts" id="alerts" hidden></aside>
+  <div class="prompt" id="prompt" hidden></div>
+  <div class="toast" id="toast"></div>
+
+  <div class="overlay" id="intro">
+    <div class="panel panel-wide">
+      <p class="kicker">Have fun &amp; explore · 04</p>
+      <h1>Floor <em>Forward</em></h1>
+      <p>You've just been made operations lead of a busy distribution warehouse. Demand grows every day. Your brief: <b>modernise the floor without laying anyone off</b>. Automation should change people's jobs, not end them.</p>
+      <div class="intro-grid">
+        <div><b>Find the bottleneck</b><span>Orders flow through receiving → storage → picking → packing → shipping. The slowest station limits everything, so rebalance staff.</span></div>
+        <div><b>Modernise with people</b><span>Scanners, WMS, conveyors, robots and sensors boost capacity, but they need trained technicians, robot operators and analysts. Reskill your own staff.</span></div>
+        <div><b>Handle problems on the floor</b><span>Breakdowns, jams, spills, cyber attacks and pressure from HQ. Walk to the red marker and decide. Ignore it and the default happens.</span></div>
+      </div>
+      <dl class="keys">
+        <dt><kbd>WASD</kbd> or click/tap the floor</dt><dd>Walk</dd>
+        <dt><kbd>E</kbd></dt><dd>Interact with a nearby station or problem</dd>
+        <dt><kbd>O</kbd> · <kbd>Space</kbd> · <kbd>1</kbd>–<kbd>3</kbd></dt><dd>Office · pause · speed</dd>
+        <dt>Right-drag · wheel</dt><dd>Rotate · zoom the camera</dd>
+      </dl>
+      <div class="actions">
+        <button class="btn btn-solid" id="startBtn">Clock in</button>
+        <a class="btn" href="../index.html#play">Back</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="modal" hidden>
+    <div class="panel panel-wide" id="modalBody"></div>
+  </div>
+
+  <script type="module" src="../js/warehouse.js"></script>
+  <script type="module" src="../js/about.js"></script>
+  <script type="module" src="../js/pwa.js"></script>
+</body>
+</html>
