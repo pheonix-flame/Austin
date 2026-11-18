@@ -13,6 +13,18 @@ export const projects = [
     chips: ['Oracle APEX', 'PL/SQL', 'SAST', 'OWASP Top 10'],
   },
   {
+    tag: 'Security · E-signatures',
+    title: 'PheonixSign',
+    summary:
+      'A self-hosted e-signature platform: upload a PDF, place fields, and send signing links to up to 10 ' +
+      'signers in order, who sign on any device without an account. Every finished document is <b>sealed</b> ' +
+      'with a PAdES signature and an audit certificate, the audit trail is hash-chained so any edit shows, and ' +
+      'anyone can check a copy on a public Verify page.',
+    note: 'Two-factor sign-in, access codes and one-time email codes for signers. Built on the open-source SignuDoc.',
+    chips: ['Next.js', 'TypeScript', 'PostgreSQL', 'PAdES', 'Vercel'],
+    link: { url: 'https://pheonix-sign.vercel.app/login', label: 'Open PheonixSign' },
+  },
+  {
     tag: 'Machine learning · Forex',
     title: 'Quantora v1',
     summary:

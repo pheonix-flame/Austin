@@ -1,4 +1,4 @@
-const VERSION = 'ao-v5';
+const VERSION = 'ao-v6';
 const CORE = [
   './',
   './assets/favicon.svg',
