@@ -1,6 +1,12 @@
 const root = new URL('../', import.meta.url);
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
   window.addEventListener('load', () => navigator.serviceWorker.register(new URL('sw.js', root), { scope: root.pathname }).catch(() => {}));
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloaded || document.querySelector('.topbar')) return;
+    reloaded = true; location.reload();
+  });
 }
 
 const bar = document.querySelector('.topbar');

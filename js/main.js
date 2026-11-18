@@ -13,7 +13,15 @@ function renderProjects() {
     const chips = p.chips?.length ? `<ul class="chips">${p.chips.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : '';
     const note = p.note ? `<p class="aside">${p.note}</p>` : '';
     const link = p.link ? `<a class="card-link" href="${esc(p.link.url)}" target="_blank" rel="noopener">${esc(p.link.label || 'Visit')} <span aria-hidden="true">↗</span></a>` : '';
-    const demo = p.featured ? `
+    const demo = p.demo === 'seal' ? `
+      <div class="seal" aria-hidden="true">
+        <div class="seal-doc"><i></i><i></i><i class="s"></i><i></i><i class="s"></i><span class="seal-sig">A. Okezie</span><b class="seal-stamp">Sealed</b></div>
+        <ul class="findings">
+          <li><b class="sev ok"></b><span><em class="owasp">1</em> Signer one · signed</span></li>
+          <li><b class="sev ok"></b><span><em class="owasp">2</em> Signer two · signed</span></li>
+          <li><b class="sev ok"></b><span><em class="owasp">PAdES</em> Seal and audit certificate · verified</span></li>
+        </ul>
+      </div>` : p.demo === 'scanner' ? `
       <div class="score" aria-hidden="true">
         <div class="score-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="track"/><circle cx="60" cy="60" r="52" class="bar"/></svg><span>87</span></div>
         <ul class="findings">
@@ -105,7 +113,7 @@ const revealObs = new IntersectionObserver((entries) => {
     el.style.transitionDelay = Math.min(idx, 6) * 60 + 'ms';
     el.classList.add('in');
     el.querySelectorAll('[data-count]').forEach(countUp);
-    el.querySelectorAll('.score').forEach((s) => s.classList.add('in'));
+    el.querySelectorAll('.score, .seal').forEach((s) => s.classList.add('in'));
     revealObs.unobserve(el);
   });
 }, { threshold: 0.12 });

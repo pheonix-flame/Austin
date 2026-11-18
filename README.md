@@ -29,7 +29,8 @@ Fields for `projects`:
 | `chips` | optional | List of short technology labels |
 | `link` | optional | `{ url: 'https://...', label: 'Visit site' }` |
 | `status` | optional | Small badge, e.g. `'Coming soon'` |
-| `featured` | optional | `true` makes the large card with the score demo (use once) |
+| `featured` | optional | `true` makes the large lead card (use once) |
+| `demo` | optional | Small illustration: `'seal'` (signed document) or `'scanner'` (security score) |
 
 Fields for `community`: `title` and `summary` (required), `url` (optional; leave it out for internal tools).
 

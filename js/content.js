@@ -1,18 +1,7 @@
 export const projects = [
   {
     featured: true,
-    tag: 'Security tooling · SAST',
-    title: 'Oracle APEX security scanner',
-    summary:
-      'A static application security testing (SAST) tool for Oracle APEX and other low-code applications. ' +
-      'It exists so teams can confirm their low-code apps are not vulnerable before they ship. Checks follow the ' +
-      '<b>OWASP Top 10</b>: SQL injection in dynamic SQL, XSS escaping gaps, broken access control (missing ' +
-      'authorization schemes), weak session-state protection, hardcoded credentials and risky database object ' +
-      'dependencies. Every application gets a 0–100 score weighted by severity.',
-    note: 'Runs without SYS/ADMIN privileges, so developers can scan their own work.',
-    chips: ['Oracle APEX', 'PL/SQL', 'SAST', 'OWASP Top 10'],
-  },
-  {
+    demo: 'seal',
     tag: 'Security · E-signatures',
     title: 'PheonixSign',
     summary:
@@ -23,6 +12,18 @@ export const projects = [
     note: 'Two-factor sign-in, access codes and one-time email codes for signers. Built on the open-source SignuDoc.',
     chips: ['Next.js', 'TypeScript', 'PostgreSQL', 'PAdES', 'Vercel'],
     link: { url: 'https://pheonix-sign.vercel.app/login', label: 'Open PheonixSign' },
+  },
+  {
+    tag: 'Security tooling · SAST',
+    title: 'Oracle APEX security scanner',
+    summary:
+      'A static application security testing (SAST) tool for Oracle APEX and other low-code applications. ' +
+      'It exists so teams can confirm their low-code apps are not vulnerable before they ship. Checks follow the ' +
+      '<b>OWASP Top 10</b>: SQL injection in dynamic SQL, XSS escaping gaps, broken access control (missing ' +
+      'authorization schemes), weak session-state protection, hardcoded credentials and risky database object ' +
+      'dependencies. Every application gets a 0–100 score weighted by severity.',
+    note: 'Runs without SYS/ADMIN privileges, so developers can scan their own work.',
+    chips: ['Oracle APEX', 'PL/SQL', 'SAST', 'OWASP Top 10'],
   },
   {
     tag: 'Machine learning · Forex',
@@ -107,6 +108,12 @@ export const projects = [
 ];
 
 export const community = [
+  {
+    title: 'PheonixSign',
+    summary:
+      'A free app for signing documents: anyone can send a PDF for signature and get back a sealed, verifiable copy, with no per-seat fees.',
+    url: 'https://pheonix-sign.vercel.app/login',
+  },
   {
     title: 'Editorial CDS Lagos website',
     summary: 'Designed for NYSC Lagos to improve community engagement and make information easier to find.',

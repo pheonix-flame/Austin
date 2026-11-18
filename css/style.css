@@ -237,6 +237,14 @@ section { scroll-margin-top: 72px; }
 .score-ring .bar { stroke: var(--ok); stroke-linecap: round; stroke-dasharray: 326.7; stroke-dashoffset: 326.7; transition: stroke-dashoffset 1.6s cubic-bezier(.2,.7,.2,1); }
 .score.in .bar { stroke-dashoffset: 42.5; }
 .score-ring span { position: absolute; inset: 0; display: grid; place-items: center; font: 500 30px var(--sans); letter-spacing: -.03em; }
+.seal { display: flex; gap: 28px; align-items: center; margin: 16px 0 8px; padding: 20px; border: 1px dashed var(--line-2); border-radius: 12px; background: var(--bg); }
+.seal-doc { position: relative; width: 96px; height: 124px; flex: none; border-radius: 6px; background: #f2efe8; padding: 14px 12px; display: flex; flex-direction: column; gap: 7px; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+.seal-doc i { display: block; height: 4px; border-radius: 2px; background: #c9c3b6; }
+.seal-doc i.s { width: 62%; }
+.seal-sig { margin-top: auto; font: italic 15px var(--serif); color: #1f3a8a; border-bottom: 1px solid #c9c3b6; padding-bottom: 2px; }
+.seal-stamp { position: absolute; right: -14px; bottom: 14px; font: 500 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ok); border: 1.5px solid var(--ok); border-radius: 6px; padding: 4px 6px; background: rgba(13,13,12,.9); transform: rotate(-8deg) scale(.6); opacity: 0; transition: transform .5s cubic-bezier(.2,.7,.2,1) .5s, opacity .3s .5s; }
+.seal.in .seal-stamp { transform: rotate(-8deg) scale(1); opacity: 1; }
+.sev.ok { background: var(--ok); }
 .findings { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
 .findings li { display: flex; align-items: center; gap: 10px; }
 .sev { width: 8px; height: 8px; border-radius: 2px; flex: none; }
@@ -246,7 +254,7 @@ section { scroll-margin-top: 72px; }
 @media (max-width: 640px) {
   .cards { grid-template-columns: 1fr; }
   .card-feature { grid-column: auto; grid-row: auto; padding: 24px; }
-  .score { flex-direction: column; align-items: flex-start; gap: 18px; }
+  .score, .seal { flex-direction: column; align-items: flex-start; gap: 18px; }
 }
 .community { margin-top: 72px; display: grid; grid-template-columns: 1fr 2fr; gap: 40px; }
 .community-head h3 { font-size: 26px; margin-bottom: 10px; }

@@ -1,4 +1,4 @@
-const VERSION = 'ao-v6';
+const VERSION = 'ao-v8';
 const CORE = [
   './',
   './assets/favicon.svg',
@@ -74,6 +74,11 @@ self.addEventListener('fetch', (e) => {
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req).then((r) => { const copy = r.clone(); caches.open(VERSION).then((c) => c.put(req, copy)); return r; })
       .catch(async () => (await caches.match(req, { ignoreSearch: true })) || caches.match('./index.html')));
+    return;
+  }
+  if (!url.pathname.includes('/vendor/') && /\.(js|css|json|webmanifest|html)$/.test(url.pathname)) {
+    e.respondWith(fetch(req).then((r) => { if (r.ok) { const copy = r.clone(); caches.open(VERSION).then((c) => c.put(req, copy)); } return r; })
+      .catch(async () => (await caches.match(req, { ignoreSearch: true })) || Response.error()));
     return;
   }
   e.respondWith(caches.open(VERSION).then(async (c) => {
